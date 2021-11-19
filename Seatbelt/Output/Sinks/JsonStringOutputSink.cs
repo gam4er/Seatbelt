@@ -6,20 +6,17 @@ using Seatbelt.Commands;
 namespace Seatbelt.Output.Sinks
 {
     // Any sinks that output text to a location should inherit from this class
-    internal class JsonFileOutputSink : IOutputSink
+    internal class JsonStringOutputSink : IOutputSink
     {
-        private StreamWriter _stream;
+        private StreamWriter _streamWriter;
+        private MemoryStream _stream;
         private JavaScriptSerializer _json = new JavaScriptSerializer();
 
-        public JsonFileOutputSink(string file, bool filterResults)
+            public JsonStringOutputSink(string file, bool filterResults)
         {
-            if (File.Exists(file))
-            {
-                File.Delete(file);
-            }
-
-            _stream = File.CreateText(file);
-            _stream.AutoFlush = true;
+            _stream = new MemoryStream();
+            _streamWriter = new StreamWriter(_stream);
+            _streamWriter.AutoFlush = true;
         }
 
         public void WriteOutput(CommandDTOBase dto)
@@ -32,10 +29,12 @@ namespace Seatbelt.Output.Sinks
 
             // If the dto has a custom output sink, use it.  Otherwise, use the default output sink
             var dtoType = dto.GetType();
+            if (dtoType == typeof(HostDTO)) return;
 
             var obj = new
             {
                 Type = dtoType.ToString(),
+                CommandVersion = dto.GetCommandVersion(),
                 Data = dto
             };
 
@@ -53,7 +52,7 @@ namespace Seatbelt.Output.Sinks
                 });
             }
 
-            _stream.WriteLine(jsonStr);
+            _streamWriter.WriteLine(jsonStr);
         }
 
         public void WriteVerbose(string message) => WriteOutput(new VerboseDTO(message));
@@ -66,11 +65,16 @@ namespace Seatbelt.Output.Sinks
 
         public string GetOutput()
         {
-            return "";
+            _stream.Flush();
+            _streamWriter.Flush();
+            _stream.Position = 0;
+            StreamReader sr = new StreamReader(_stream);
+            return sr.ReadToEnd();
         }
 
         public void Dispose()
         {
+            _streamWriter.Dispose();
             _stream.Dispose();
         }
     }
