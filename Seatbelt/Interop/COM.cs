@@ -1,8 +1,11 @@
-﻿using System;
+using System;
+using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Seatbelt.Interop
+namespace O_F41F88FA.Interop
 {
-    internal class COM
+    internal class O_FC331D1C
     {
         [Flags]
         public enum FirewallProfiles : int

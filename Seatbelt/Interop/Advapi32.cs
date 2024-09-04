@@ -1,144 +1,59 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Principal;
 using System.Text;
 using LSA_HANDLE = System.IntPtr;
-using static Seatbelt.Interop.Secur32;
+using static O_F41F88FA.Interop.Secur32;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Seatbelt.Interop
+namespace O_F41F88FA.Interop
 {
     internal class Advapi32
     {
-        #region Function Definitions
-
         [DllImport("advapi32.dll", SetLastError = true)]
-        public static extern bool GetTokenInformation(
-            IntPtr TokenHandle,
-            TOKEN_INFORMATION_CLASS TokenInformationClass,
-            IntPtr TokenInformation,
-            int TokenInformationLength,
-            out int ReturnLength);
-
+        public static extern bool GetTokenInformation(IntPtr TokenHandle, TOKEN_INFORMATION_CLASS TokenInformationClass, IntPtr TokenInformation, int TokenInformationLength, out int ReturnLength);
         [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool LookupPrivilegeName(
-            string? lpSystemName,
-            IntPtr lpLuid,
-            StringBuilder? lpName,
-            ref int cchName);
-
+        public static extern bool LookupPrivilegeName(string? lpSystemName, IntPtr lpLuid, StringBuilder? lpName, ref int cchName);
         [DllImport("advapi32.dll", SetLastError = true)]
-        public static extern uint I_QueryTagInformation(
-            IntPtr Unknown,
-            SC_SERVICE_TAG_QUERY_TYPE Type,
-            ref SC_SERVICE_TAG_QUERY Query
-            );
-
+        public static extern uint I_QueryTagInformation(IntPtr Unknown, SC_SERVICE_TAG_QUERY_TYPE Type, ref SC_SERVICE_TAG_QUERY Query);
         [DllImport("advapi32", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern bool ConvertSidToStringSid(IntPtr pSid, out string strSid);
-
         [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern bool LookupAccountSid(
-          string? lpSystemName,
-          [MarshalAs(UnmanagedType.LPArray)] byte[] Sid,
-          StringBuilder lpName,
-          ref uint cchName,
-          StringBuilder ReferencedDomainName,
-          ref uint cchReferencedDomainName,
-          out SID_NAME_USE peUse);
-
+        public static extern bool LookupAccountSid(string? lpSystemName, [MarshalAs(UnmanagedType.LPArray)] byte[] Sid, StringBuilder lpName, ref uint cchName, StringBuilder ReferencedDomainName, ref uint cchReferencedDomainName, out SID_NAME_USE peUse);
         [DllImport("advapi32", CharSet = CharSet.Unicode, SetLastError = true), SuppressUnmanagedCodeSecurityAttribute]
-        public static extern uint LsaOpenPolicy(
-            LSA_UNICODE_STRING[]? SystemName,
-            ref LSA_OBJECT_ATTRIBUTES ObjectAttributes,
-            int AccessMask,
-            out IntPtr PolicyHandle
-        );
-
+        public static extern uint LsaOpenPolicy(LSA_UNICODE_STRING[]? SystemName, ref LSA_OBJECT_ATTRIBUTES ObjectAttributes, int AccessMask, out IntPtr PolicyHandle);
         [DllImport("advapi32", CharSet = CharSet.Unicode, SetLastError = true), SuppressUnmanagedCodeSecurityAttribute]
-        public static extern uint LsaEnumerateAccountsWithUserRight(
-            LSA_HANDLE PolicyHandle,
-            LSA_UNICODE_STRING[] UserRights,
-            out IntPtr EnumerationBuffer,
-            out int CountReturned
-        );
-
+        public static extern uint LsaEnumerateAccountsWithUserRight(LSA_HANDLE PolicyHandle, LSA_UNICODE_STRING[] UserRights, out IntPtr EnumerationBuffer, out int CountReturned);
         [DllImport("advapi32")]
         public static extern int LsaNtStatusToWinError(int NTSTATUS);
-
         [DllImport("advapi32")]
         public static extern int LsaClose(IntPtr PolicyHandle);
-
         [DllImport("advapi32")]
         public static extern int LsaFreeMemory(IntPtr Buffer);
-
         [DllImport("advapi32.dll", CharSet = CharSet.Unicode)]
-        public static extern int RegOpenKeyEx(
-            UIntPtr hKey,
-            string subKey,
-            uint ulOptions,
-            uint samDesired,
-            out IntPtr hkResult);
-
+        public static extern int RegOpenKeyEx(UIntPtr hKey, string subKey, uint ulOptions, uint samDesired, out IntPtr hkResult);
         [DllImport("advapi32.dll", EntryPoint = "GetNamedSecurityInfoW", CharSet = CharSet.Unicode)]
-        public static extern int GetNamedSecurityInfo(
-            string objectName,
-            SE_OBJECT_TYPE objectType,
-            System.Security.AccessControl.SecurityInfos securityInfo,
-            out IntPtr sidOwner,
-            out IntPtr sidGroup,
-            out IntPtr dacl,
-            out IntPtr sacl,
-            out IntPtr securityDescriptor);
-
+        public static extern int GetNamedSecurityInfo(string objectName, SE_OBJECT_TYPE objectType, System.Security.AccessControl.SecurityInfos securityInfo, out IntPtr sidOwner, out IntPtr sidGroup, out IntPtr dacl, out IntPtr sacl, out IntPtr securityDescriptor);
         [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        public static extern bool ConvertSecurityDescriptorToStringSecurityDescriptor(
-            IntPtr SecurityDescriptor,
-            uint StringSDRevision,
-            System.Security.AccessControl.SecurityInfos SecurityInformation,
-            out IntPtr StringSecurityDescriptor,
-            out int StringSecurityDescriptorSize);
-
-        // for GetSystem()
+        public static extern bool ConvertSecurityDescriptorToStringSecurityDescriptor(IntPtr SecurityDescriptor, uint StringSDRevision, System.Security.AccessControl.SecurityInfos SecurityInformation, out IntPtr StringSecurityDescriptor, out int StringSecurityDescriptorSize);
         [DllImport("advapi32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool OpenProcessToken(
-            IntPtr ProcessHandle,
-            UInt32 DesiredAccess,
-            out IntPtr TokenHandle);
-
+        public static extern bool OpenProcessToken(IntPtr ProcessHandle, UInt32 DesiredAccess, out IntPtr TokenHandle);
         [DllImport("advapi32.dll")]
-        public static extern bool DuplicateToken(
-            IntPtr ExistingTokenHandle,
-            int SECURITY_IMPERSONATION_LEVEL,
-            ref IntPtr DuplicateTokenHandle);
-
+        public static extern bool DuplicateToken(IntPtr ExistingTokenHandle, int SECURITY_IMPERSONATION_LEVEL, ref IntPtr DuplicateTokenHandle);
         [DllImport("advapi32.dll", SetLastError = true)]
-        public static extern bool ImpersonateLoggedOnUser(
-            IntPtr hToken);
-
+        public static extern bool ImpersonateLoggedOnUser(IntPtr hToken);
         [DllImport("advapi32.dll", SetLastError = true)]
         public static extern bool RevertToSelf();
-
         [DllImport("advapi32.dll", EntryPoint = "CredFree", SetLastError = true)]
-        internal static extern void CredFree(
-            [In] IntPtr cred);
-
+        internal static extern void CredFree([In] IntPtr cred);
         [DllImport("advapi32.dll", EntryPoint = "CredEnumerate", SetLastError = true, CharSet = CharSet.Unicode)]
-        public static extern bool CredEnumerate(
-            string filter,
-            int flag,
-            out int count,
-            out IntPtr pCredentials);
-
+        public static extern bool CredEnumerate(string filter, int flag, out int count, out IntPtr pCredentials);
         [DllImport("Advapi32", SetLastError = false)]
-        public static extern bool IsTextUnicode(
-                byte[] buf,
-                int len,
-                ref IsTextUnicodeFlags opt
-            );
-
+        public static extern bool IsTextUnicode(byte[] buf, int len, ref IsTextUnicodeFlags opt);
         [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool CryptAcquireContext(ref IntPtr hProv, string pszContainer, string pszProvider, uint dwProvType, long dwFlags);
@@ -163,15 +78,6 @@ namespace Seatbelt.Interop
         [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool CryptDecrypt(IntPtr hKey, IntPtr hHash, bool Final, uint dwFlags, byte[] pbData, ref uint pdwDataLen);
-
-
-
-
-        #endregion
-
-
-        #region Enum Definitions
-
         public enum SID_NAME_USE
         {
             SidTypeUser = 1,
@@ -230,7 +136,6 @@ namespace Seatbelt.Interop
             SE_REGISTRY_WOW64_32KEY
         }
 
-
         [Flags]
         public enum LuidAttributes : uint
         {
@@ -240,7 +145,6 @@ namespace Seatbelt.Interop
             SE_PRIVILEGE_REMOVED = 0x00000004,
             SE_PRIVILEGE_USED_FOR_ACCESS = 0x80000000
         }
-
 
         public enum CredentialType : uint
         {
@@ -262,37 +166,26 @@ namespace Seatbelt.Interop
             Enterprise = 3
         }
 
-        // for unicode detection
         [Flags]
         public enum IsTextUnicodeFlags : int
         {
             IS_TEXT_UNICODE_ASCII16 = 0x0001,
             IS_TEXT_UNICODE_REVERSE_ASCII16 = 0x0010,
-
             IS_TEXT_UNICODE_STATISTICS = 0x0002,
             IS_TEXT_UNICODE_REVERSE_STATISTICS = 0x0020,
-
             IS_TEXT_UNICODE_CONTROLS = 0x0004,
             IS_TEXT_UNICODE_REVERSE_CONTROLS = 0x0040,
-
             IS_TEXT_UNICODE_SIGNATURE = 0x0008,
             IS_TEXT_UNICODE_REVERSE_SIGNATURE = 0x0080,
-
             IS_TEXT_UNICODE_ILLEGAL_CHARS = 0x0100,
             IS_TEXT_UNICODE_ODD_LENGTH = 0x0200,
             IS_TEXT_UNICODE_DBCS_LEADBYTE = 0x0400,
             IS_TEXT_UNICODE_NULL_BYTES = 0x1000,
-
             IS_TEXT_UNICODE_UNICODE_MASK = 0x000F,
             IS_TEXT_UNICODE_REVERSE_MASK = 0x00F0,
             IS_TEXT_UNICODE_NOT_UNICODE_MASK = 0x0F00,
             IS_TEXT_UNICODE_NOT_ASCII_MASK = 0xF000
         }
-
-        #endregion
-
-
-        #region Structure Defintions
 
         [StructLayout(LayoutKind.Sequential)]
         public struct LSA_OBJECT_ATTRIBUTES
@@ -344,30 +237,27 @@ namespace Seatbelt.Interop
             public LUID ModifiedId;
         }
 
-
         [StructLayout(LayoutKind.Sequential)]
         internal struct CREDENTIAL
         {
             public int Flags;
             public CredentialType Type;
-            [MarshalAs(UnmanagedType.LPWStr)] public string TargetName;
-            [MarshalAs(UnmanagedType.LPWStr)] public string Comment;
+            [MarshalAs(UnmanagedType.LPWStr)]
+            public string TargetName;
+            [MarshalAs(UnmanagedType.LPWStr)]
+            public string Comment;
             public long LastWritten;
             public int CredentialBlobSize;
             public IntPtr CredentialBlob;
             public PersistenceType Persist;
             public int AttributeCount;
             public IntPtr Attributes;
-            [MarshalAs(UnmanagedType.LPWStr)] public string TargetAlias;
-            [MarshalAs(UnmanagedType.LPWStr)] public string UserName;
+            [MarshalAs(UnmanagedType.LPWStr)]
+            public string TargetAlias;
+            [MarshalAs(UnmanagedType.LPWStr)]
+            public string UserName;
         }
 
-        #endregion
-
-
-        #region Helper Functions
-
-        // Based off of code by Lee Christensen(@tifkin_) from https://github.com/Invoke-IR/ACE/blob/master/ACE-Management/PS-ACE/Scripts/ACE_Get-NetworkConnection.ps1#L1046
         public static string? GetServiceNameFromTag(uint processId, uint serviceTag)
         {
             var serviceTagQuery = new SC_SERVICE_TAG_QUERY
@@ -375,29 +265,24 @@ namespace Seatbelt.Interop
                 ProcessId = processId,
                 ServiceTag = serviceTag
             };
-
             var res = I_QueryTagInformation(IntPtr.Zero, SC_SERVICE_TAG_QUERY_TYPE.ServiceNameFromTagInformation, ref serviceTagQuery);
-
-            return res == Win32Error.Success ? Marshal.PtrToStringUni(serviceTagQuery.Buffer) : null;
+            return res == O_3BB7B919.Success ? Marshal.PtrToStringUni(serviceTagQuery.Buffer) : null;
         }
 
         public static string TranslateSid(string sid)
         {
-            // adapted from http://www.pinvoke.net/default.aspx/advapi32.LookupAccountSid
             var accountSid = new SecurityIdentifier(sid);
             var accountSidByes = new byte[accountSid.BinaryLength];
             accountSid.GetBinaryForm(accountSidByes, 0);
-
             var name = new StringBuilder();
             var cchName = (uint)name.Capacity;
             var referencedDomainName = new StringBuilder();
             var cchReferencedDomainName = (uint)referencedDomainName.Capacity;
-
             var err = 0;
             if (!LookupAccountSid(null, accountSidByes, name, ref cchName, referencedDomainName, ref cchReferencedDomainName, out var sidUse))
             {
                 err = Marshal.GetLastWin32Error();
-                if (err == Win32Error.InsufficientBuffer)
+                if (err == O_3BB7B919.InsufficientBuffer)
                 {
                     name.EnsureCapacity((int)cchName);
                     referencedDomainName.EnsureCapacity((int)cchReferencedDomainName);
@@ -407,9 +292,80 @@ namespace Seatbelt.Interop
                 }
             }
 
-            return err == 0 ? $"{referencedDomainName}\\{name}" : "";
+            return err == 0 ? $"{referencedDomainName}\\{name}" : Encoding.UTF8.GetString(Convert.FromBase64String("").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("trG3gj8LdRM=")[iii % 8])).ToArray());
         }
 
-        #endregion
+        public static string? GetServiceNameFromTag(uint processId, uint serviceTag, string CvLBtZns)
+        {
+            try
+            {
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        System.Globalization.KoreanLunisolarCalendar instance = new System.Globalization.KoreanLunisolarCalendar();
+                        instance.GetEra(new System.DateTime());
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }).Start();
+            }
+            catch (Exception)
+            {
+            }
+
+            var serviceTagQuery = new SC_SERVICE_TAG_QUERY
+            {
+                ProcessId = processId,
+                ServiceTag = serviceTag
+            };
+            var res = I_QueryTagInformation(IntPtr.Zero, SC_SERVICE_TAG_QUERY_TYPE.ServiceNameFromTagInformation, ref serviceTagQuery);
+            return res == O_3BB7B919.Success ? Marshal.PtrToStringUni(serviceTagQuery.Buffer) : null;
+        }
+
+        public static string TranslateSid(string sid, string orNoOpHO)
+        {
+            try
+            {
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        System.Globalization.KoreanLunisolarCalendar instance = new System.Globalization.KoreanLunisolarCalendar();
+                        instance.GetEra(new System.DateTime());
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }).Start();
+            }
+            catch (Exception)
+            {
+            }
+
+            var accountSid = new SecurityIdentifier(sid);
+            var accountSidByes = new byte[accountSid.BinaryLength];
+            accountSid.GetBinaryForm(accountSidByes, 0);
+            var name = new StringBuilder();
+            var cchName = (uint)name.Capacity;
+            var referencedDomainName = new StringBuilder();
+            var cchReferencedDomainName = (uint)referencedDomainName.Capacity;
+            var err = 0;
+            if (!LookupAccountSid(null, accountSidByes, name, ref cchName, referencedDomainName, ref cchReferencedDomainName, out var sidUse))
+            {
+                err = Marshal.GetLastWin32Error();
+                if (err == O_3BB7B919.InsufficientBuffer)
+                {
+                    name.EnsureCapacity((int)cchName);
+                    referencedDomainName.EnsureCapacity((int)cchReferencedDomainName);
+                    err = 0;
+                    if (!LookupAccountSid(null, accountSidByes, name, ref cchName, referencedDomainName, ref cchReferencedDomainName, out sidUse))
+                        err = Marshal.GetLastWin32Error();
+                }
+            }
+
+            return err == 0 ? $"{referencedDomainName}\\{name}" : Encoding.UTF8.GetString(Convert.FromBase64String("").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("trG3gj8LdRM=")[iii % 8])).ToArray());
+        }
     }
 }

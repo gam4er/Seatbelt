@@ -1,44 +1,29 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Seatbelt.Interop
+namespace O_F41F88FA.Interop
 {
-    internal class Wtsapi32
+    internal class O_17620FAB
     {
         [DllImport("wtsapi32.dll", SetLastError = true)]
         public static extern IntPtr WTSOpenServer([MarshalAs(UnmanagedType.LPStr)] string pServerName);
-
         [DllImport("wtsapi32.dll")]
         public static extern void WTSCloseServer(IntPtr hServer);
-
         [DllImport("wtsapi32.dll", SetLastError = true)]
-        public static extern bool WTSEnumerateSessionsEx(
-            IntPtr hServer,
-            [MarshalAs(UnmanagedType.U4)] ref int pLevel,
-            [MarshalAs(UnmanagedType.U4)] int Filter,
-            ref IntPtr ppSessionInfo,
-            [MarshalAs(UnmanagedType.U4)] ref int pCount);
-
+        public static extern bool WTSEnumerateSessionsEx(IntPtr hServer, [MarshalAs(UnmanagedType.U4)] ref int pLevel, [MarshalAs(UnmanagedType.U4)] int Filter, ref IntPtr ppSessionInfo, [MarshalAs(UnmanagedType.U4)] ref int pCount);
         [DllImport("wtsapi32.dll")]
         public static extern void WTSFreeMemory(IntPtr pMemory);
-
         [DllImport("Wtsapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern bool WTSQuerySessionInformation(
-            IntPtr hServer,
-            uint sessionId,
-            WTS_INFO_CLASS wtsInfoClass,
-            out IntPtr ppBuffer,
-            out uint pBytesReturned
-        );
-
+        public static extern bool WTSQuerySessionInformation(IntPtr hServer, uint sessionId, WTS_INFO_CLASS wtsInfoClass, out IntPtr ppBuffer, out uint pBytesReturned);
         [StructLayout(LayoutKind.Sequential)]
         public struct WTS_SESSION_INFO
         {
             public int SessionID;
-
             [MarshalAs(UnmanagedType.LPStr)]
             public string pWinStationName;
-
             public WTS_CONNECTSTATE_CLASS State;
         }
 
@@ -46,27 +31,19 @@ namespace Seatbelt.Interop
         public struct WTS_SESSION_INFO_1
         {
             public uint ExecEnvId;
-
             public WTS_CONNECTSTATE_CLASS State;
-
             public uint SessionID;
-
             [MarshalAs(UnmanagedType.LPStr)]
             public string pSessionName;
-
             [MarshalAs(UnmanagedType.LPStr)]
             public string pHostName;
-
             [MarshalAs(UnmanagedType.LPStr)]
             public string pUserName;
-
             [MarshalAs(UnmanagedType.LPStr)]
             public string pDomainName;
-
             [MarshalAs(UnmanagedType.LPStr)]
             public string pFarmName;
         }
-
 
         public enum ADDRESS_FAMILY
         {
@@ -81,7 +58,6 @@ namespace Seatbelt.Interop
         public struct WTS_CLIENT_ADDRESS
         {
             public ADDRESS_FAMILY AddressFamily;
-
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
             public byte[] Address;
         }
@@ -172,4 +148,3 @@ namespace Seatbelt.Interop
         }
     }
 }
-

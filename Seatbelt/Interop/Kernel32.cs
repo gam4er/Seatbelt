@@ -1,46 +1,33 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Seatbelt.Interop
+namespace O_F41F88FA.Interop
 {
     internal class Kernel32
     {
         [DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool IsWow64Process(
-            [In] IntPtr hProcess,
-            [Out] out bool wow64Process
-        );
-
+        public static extern bool IsWow64Process([In] IntPtr hProcess, [Out] out bool wow64Process);
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool CloseHandle(IntPtr hObject);
-
         [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
         public static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
-
         [DllImport("kernel32.dll")]
         public static extern IntPtr LocalAlloc(uint uFlags, uint uBytes);
-
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern IntPtr FindFirstFile(string lpFileName, out WIN32_FIND_DATA lpFindFileData);
-
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern bool FindNextFile(IntPtr hFindFile, out WIN32_FIND_DATA
-           lpFindFileData);
-
+        public static extern bool FindNextFile(IntPtr hFindFile, out WIN32_FIND_DATA lpFindFileData);
         [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern IntPtr OpenProcess(
-        ProcessAccess processAccess,
-        bool bInheritHandle,
-        int processId);
-
+        public static extern IntPtr OpenProcess(ProcessAccess processAccess, bool bInheritHandle, int processId);
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool FindClose(IntPtr hFindFile);
-
         [DllImport("kernel32.dll")]
         public static extern int GetLastError();
-
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         public struct WIN32_FIND_DATA
         {
@@ -59,25 +46,13 @@ namespace Seatbelt.Interop
         }
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr CreateFile(
-         [MarshalAs(UnmanagedType.LPTStr)] string filename,
-         [MarshalAs(UnmanagedType.U4)] System.IO.FileAccess access,
-         [MarshalAs(UnmanagedType.U4)] System.IO.FileShare share,
-         IntPtr securityAttributes,
-         [MarshalAs(UnmanagedType.U4)] System.IO.FileMode creationDisposition,
-         [MarshalAs(UnmanagedType.U4)] System.IO.FileAttributes flagsAndAttributes,
-         IntPtr templateFile);
-
+        public static extern IntPtr CreateFile([MarshalAs(UnmanagedType.LPTStr)] string filename, [MarshalAs(UnmanagedType.U4)] System.IO.FileAccess access, [MarshalAs(UnmanagedType.U4)] System.IO.FileShare share, IntPtr securityAttributes, [MarshalAs(UnmanagedType.U4)] System.IO.FileMode creationDisposition, [MarshalAs(UnmanagedType.U4)] System.IO.FileAttributes flagsAndAttributes, IntPtr templateFile);
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool GetNamedPipeServerProcessId(IntPtr hPipe, out int ProcessId);
-
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool GetNamedPipeServerSessionId(IntPtr hPipe, out int ProcessId);
-
         [DllImport("kernel32.dll")]
         public static extern IntPtr GetConsoleWindow();
-
-
         [Flags]
         public enum ProcessAccess
         {

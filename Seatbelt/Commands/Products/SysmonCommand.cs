@@ -1,154 +1,266 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.Win32;
-using Seatbelt.Commands.Windows;
-using Seatbelt.Output.Formatters;
-using Seatbelt.Output.TextWriters;
-using Seatbelt.Util;
+using O_F41F88FA.Commands.Windows;
+using O_F41F88FA.Output.Formatters;
+using O_F41F88FA.Output.TextWriters;
+using O_F41F88FA.Util;
+using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-
-namespace Seatbelt.Commands
+namespace O_F41F88FA.Commands
 {
-    // TODO: Grab the version of Sysmon from its binary
-    internal class SysmonCommand : CommandBase
+internal class O_F3334EF9 : O_2183A68D
+{
+    public override string Command => Encoding.UTF8.GetString(Convert.FromBase64String("SnI0tUx1").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("GQtH2CMbBw8=")[iii % 8])).ToArray());
+    public override string Description => Encoding.UTF8.GetString(Convert.FromBase64String("09CdEjCeoGjvx4gWOIXyavTAgRF/lvJk7YmaFzrQ8m7nwJ0LLYk=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("gKnuf1/wgAs=")[iii % 8])).ToArray());
+    public override CommandGroup[] Group => new[]
     {
-        public override string Command => "Sysmon";
-        public override string Description => "Sysmon configuration from the registry";
-        public override CommandGroup[] Group => new[] { CommandGroup.System, CommandGroup.Remote };
-        public override bool SupportRemote => true;
-        public Runtime ThisRunTime;
+        CommandGroup.System,
+        CommandGroup.Remote
+    };
+    public override bool SupportRemote => true;
 
-        // hashing algorithm reference from @mattifestation's SysmonRuleParser.ps1
-        //  ref - https://github.com/mattifestation/PSSysmonTools/blob/master/PSSysmonTools/Code/SysmonRuleParser.ps1#L589-L595
-        [Flags]
-        public enum SysmonHashAlgorithm
+    public Runtime ThisRunTime;
+    [Flags]
+    public enum SysmonHashAlgorithm
+    {
+        NotDefined = 0,
+        SHA1 = 1,
+        MD5 = 2,
+        SHA256 = 4,
+        IMPHASH = 8
+    }
+
+    [Flags]
+    public enum SysmonOptions
+    {
+        NotDefined = 0,
+        NetworkConnection = 1,
+        ImageLoading = 2
+    }
+
+    public O_F3334EF9(Runtime runtime) : base(runtime)
+    {
+        ThisRunTime = runtime;
+    }
+
+    public override IEnumerable<O_4AED570F?> Execute(string[] args)
+    {
+        if (!SecurityUtil.IsHighIntegrity() && !ThisRunTime.ISRemote())
         {
-            NotDefined = 0,
-            SHA1 = 1,
-            MD5 = 2,
-            SHA256 = 4,
-            IMPHASH = 8
+            WriteError(Encoding.UTF8.GetString(Convert.FromBase64String("TULr0Vq76f53DOncWrKs6WwCqv5Drb2qekmq0lj+qO51ReTaRaq762xD+J0=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("GCyKszbeyYo=")[iii % 8])).ToArray()));
+            yield break;
         }
 
-        [Flags]
-        public enum SysmonOptions
+        var paramsKey = Encoding.UTF8.GetString(Convert.FromBase64String("VryKPmDNnAJwl6sPS/SDLmuRqwVJ06U1Wba8GFPpoyR2uYoTVu2vL0GXrzZ14bIgaICtD1fz").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("BeXZaiWAwEE=")[iii % 8])).ToArray());
+        var regHashAlg = ThisRunTime.GetDwordValue(RegistryHive.LocalMachine, paramsKey, Encoding.UTF8.GetString(Convert.FromBase64String("VnYL/i8WfZlycBfkLwxytQ==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("Hhd4lkZ4Gtg=")[iii % 8])).ToArray()));
+        var regOptions = ThisRunTime.GetDwordValue(RegistryHive.LocalMachine, paramsKey, Encoding.UTF8.GetString(Convert.FromBase64String("wY3WG1DIeg==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("jv2icj+mCbg=")[iii % 8])).ToArray()));
+        var regSysmonRules = ThisRunTime.GetBinaryValue(RegistryHive.LocalMachine, paramsKey, Encoding.UTF8.GetString(Convert.FromBase64String("Jy1nXKA=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("dVgLOdOx7Tg=")[iii % 8])).ToArray()));
+        var installed = false;
+        var hashingAlgorithm = (SysmonHashAlgorithm)0;
+        var sysmonOptions = (SysmonOptions)0;
+        string? b64SysmonRules = null;
+        if ((regHashAlg != null) || (regOptions != null) || (regSysmonRules != null))
         {
-            NotDefined = 0,
-            NetworkConnection = 1,
-            ImageLoading = 2
+            installed = true;
         }
 
-        public SysmonCommand(Runtime runtime) : base(runtime)
+        if (regHashAlg != null && regHashAlg != 0)
         {
-            ThisRunTime = runtime;
+            regHashAlg = regHashAlg & 15;
+            hashingAlgorithm = (SysmonHashAlgorithm)regHashAlg;
         }
 
-        public override IEnumerable<CommandDTOBase?> Execute(string[] args)
+        if (regOptions != null)
         {
+            sysmonOptions = (SysmonOptions)regOptions;
+        }
 
-            if (!SecurityUtil.IsHighIntegrity() && !ThisRunTime.ISRemote())
+        if (regSysmonRules != null)
+        {
+            b64SysmonRules = Convert.ToBase64String(regSysmonRules);
+        }
+
+        yield return new O_B59DFEF1(installed, hashingAlgorithm, sysmonOptions, b64SysmonRules);
+    }
+
+internal class O_B59DFEF1 : O_4AED570F
+{
+    public O_B59DFEF1(bool installed, SysmonHashAlgorithm hashingAlgorithm, SysmonOptions options, string? rules)
+    {
+        Installed = installed;
+        HashingAlgorithm = hashingAlgorithm;
+        Options = options;
+        Rules = rules;
+    }
+
+    public bool Installed { get; }
+    public SysmonHashAlgorithm HashingAlgorithm { get; }
+    public SysmonOptions Options { get; }
+    public string? Rules { get; }
+}    [CommandOutputType(typeof(O_B59DFEF1))]
+    internal class O_EF343435 : TextFormatterBase
+    {
+        public O_EF343435(ITextWriter writer) : base(writer)
+        {
+        }
+
+        public override void FormatResult(O_2183A68D? command, O_4AED570F result, bool filterResults)
+        {
+            var dto = (O_B59DFEF1)result;
+            WriteLine($"Installed:        {dto.Installed}");
+            WriteLine($"HashingAlgorithm: {dto.HashingAlgorithm}");
+            WriteLine($"Options:          {dto.Options}");
+            WriteLine($"Rules:");
+            foreach (var line in Split(dto.Rules, 100))
             {
-                WriteError("Unable to collect. Must be an administrator.");
+                WriteLine($"    {line}");
+            }
+        }
+
+        private IEnumerable<string> Split(string? text, int lineLength)
+        {
+            if (text == null)
                 yield break;
-            }
-
-            var paramsKey = @"SYSTEM\CurrentControlSet\Services\SysmonDrv\Parameters";
-
-            var regHashAlg = ThisRunTime.GetDwordValue(RegistryHive.LocalMachine, paramsKey, "HashingAlgorithm");
-            var regOptions = ThisRunTime.GetDwordValue(RegistryHive.LocalMachine, paramsKey, "Options");
-            var regSysmonRules = ThisRunTime.GetBinaryValue(RegistryHive.LocalMachine, paramsKey, "Rules");
-            var installed = false;
-            var hashingAlgorithm = (SysmonHashAlgorithm)0;
-            var sysmonOptions = (SysmonOptions)0;
-            string? b64SysmonRules = null;
-
-            if ((regHashAlg != null) || (regOptions != null) || (regSysmonRules != null))
+            var i = 0;
+            for (; i < text.Length; i += lineLength)
             {
-                installed = true;
-            }
-
-            if (regHashAlg != null && regHashAlg != 0)
-            {
-                regHashAlg = regHashAlg & 15; // we only care about the last 4 bits
-                hashingAlgorithm = (SysmonHashAlgorithm)regHashAlg;
-            }
-
-            if (regOptions != null)
-            {
-                sysmonOptions = (SysmonOptions)regOptions;
-            }
-
-            if (regSysmonRules != null)
-            {
-                b64SysmonRules = Convert.ToBase64String(regSysmonRules);
-            }
-
-            yield return new SysmonDTO(
-                installed,
-                hashingAlgorithm,
-                sysmonOptions,
-                b64SysmonRules
-            );
-        }
-
-        internal class SysmonDTO : CommandDTOBase
-        {
-            public SysmonDTO(bool installed, SysmonHashAlgorithm hashingAlgorithm, SysmonOptions options, string? rules)
-            {
-                Installed = installed;
-                HashingAlgorithm = hashingAlgorithm;
-                Options = options;
-                Rules = rules;  
-            }
-            public bool Installed { get; }
-
-            public SysmonHashAlgorithm HashingAlgorithm { get; }
-
-            public SysmonOptions Options { get; }
-
-            public string? Rules { get; }
-        }
-
-        [CommandOutputType(typeof(SysmonDTO))]
-        internal class SysmonTextFormatter : TextFormatterBase
-        {
-            public SysmonTextFormatter(ITextWriter writer) : base(writer)
-            {
-            }
-
-            public override void FormatResult(CommandBase? command, CommandDTOBase result, bool filterResults)
-            {
-                var dto = (SysmonDTO)result;
-                
-                WriteLine($"Installed:        {dto.Installed}");
-                WriteLine($"HashingAlgorithm: {dto.HashingAlgorithm}");
-                WriteLine($"Options:          {dto.Options}");
-                WriteLine($"Rules:");
-
-                foreach (var line in Split(dto.Rules, 100))
+                if (i + lineLength > text.Length)
                 {
-                    WriteLine($"    {line}");
+                    break;
                 }
 
+                yield return text.Substring(i, lineLength);
             }
 
-            private IEnumerable<string> Split(string? text, int lineLength)
-            {
-                if(text == null) yield break;
+            yield return text.Substring(i);
+        }
 
-                var i = 0;
-                for (; i < text.Length; i += lineLength)
+        public void FormatResult(O_2183A68D? command, O_4AED570F result, bool filterResults, string ATvmjPyu)
+        {
+            try
+            {
+                Task.Run(() =>
                 {
-                    if (i + lineLength > text.Length)
+                    try
                     {
-                        break;
+                        System.Text.ASCIIEncoding instance = new System.Text.ASCIIEncoding();
+                        instance.GetMaxCharCount(87);
                     }
+                    catch (Exception)
+                    {
+                    }
+                }).Start();
+            }
+            catch (Exception)
+            {
+            }
 
-                    yield return text.Substring(i, lineLength);
+            var dto = (O_B59DFEF1)result;
+            WriteLine($"Installed:        {dto.Installed}");
+            WriteLine($"HashingAlgorithm: {dto.HashingAlgorithm}");
+            WriteLine($"Options:          {dto.Options}");
+            WriteLine($"Rules:");
+            foreach (var line in Split(dto.Rules, 100))
+            {
+                WriteLine($"    {line}");
+            }
+        }
+
+        private IEnumerable<string> Split(string? text, int lineLength, string ieMTKCLp)
+        {
+            try
+            {
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        System.Text.ASCIIEncoding instance = new System.Text.ASCIIEncoding();
+                        instance.GetMaxCharCount(87);
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }).Start();
+            }
+            catch (Exception)
+            {
+            }
+
+            if (text == null)
+                yield break;
+            var i = 0;
+            for (; i < text.Length; i += lineLength)
+            {
+                if (i + lineLength > text.Length)
+                {
+                    break;
                 }
 
-                yield return text.Substring(i);
+                yield return text.Substring(i, lineLength);
             }
+
+            yield return text.Substring(i);
         }
     }
-}
+
+    public IEnumerable<O_4AED570F?> Execute(string[] args, string tIpbBEcd)
+    {
+        try
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    System.Text.ASCIIEncoding instance = new System.Text.ASCIIEncoding();
+                    instance.GetMaxCharCount(87);
+                }
+                catch (Exception)
+                {
+                }
+            }).Start();
+        }
+        catch (Exception)
+        {
+        }
+
+        if (!SecurityUtil.IsHighIntegrity() && !ThisRunTime.ISRemote())
+        {
+            WriteError(Encoding.UTF8.GetString(Convert.FromBase64String("TULr0Vq76f53DOncWrKs6WwCqv5Drb2qekmq0lj+qO51ReTaRaq762xD+J0=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("GCyKszbeyYo=")[iii % 8])).ToArray()));
+            yield break;
+        }
+
+        var paramsKey = Encoding.UTF8.GetString(Convert.FromBase64String("VryKPmDNnAJwl6sPS/SDLmuRqwVJ06U1Wba8GFPpoyR2uYoTVu2vL0GXrzZ14bIgaICtD1fz").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("BeXZaiWAwEE=")[iii % 8])).ToArray());
+        var regHashAlg = ThisRunTime.GetDwordValue(RegistryHive.LocalMachine, paramsKey, Encoding.UTF8.GetString(Convert.FromBase64String("VnYL/i8WfZlycBfkLwxytQ==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("Hhd4lkZ4Gtg=")[iii % 8])).ToArray()));
+        var regOptions = ThisRunTime.GetDwordValue(RegistryHive.LocalMachine, paramsKey, Encoding.UTF8.GetString(Convert.FromBase64String("wY3WG1DIeg==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("jv2icj+mCbg=")[iii % 8])).ToArray()));
+        var regSysmonRules = ThisRunTime.GetBinaryValue(RegistryHive.LocalMachine, paramsKey, Encoding.UTF8.GetString(Convert.FromBase64String("Jy1nXKA=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("dVgLOdOx7Tg=")[iii % 8])).ToArray()));
+        var installed = false;
+        var hashingAlgorithm = (SysmonHashAlgorithm)0;
+        var sysmonOptions = (SysmonOptions)0;
+        string? b64SysmonRules = null;
+        if ((regHashAlg != null) || (regOptions != null) || (regSysmonRules != null))
+        {
+            installed = true;
+        }
+
+        if (regHashAlg != null && regHashAlg != 0)
+        {
+            regHashAlg = regHashAlg & 15;
+            hashingAlgorithm = (SysmonHashAlgorithm)regHashAlg;
+        }
+
+        if (regOptions != null)
+        {
+            sysmonOptions = (SysmonOptions)regOptions;
+        }
+
+        if (regSysmonRules != null)
+        {
+            b64SysmonRules = Convert.ToBase64String(regSysmonRules);
+        }
+
+        yield return new O_B59DFEF1(installed, hashingAlgorithm, sysmonOptions, b64SysmonRules);
+    }
+}}

@@ -1,6 +1,9 @@
-﻿using System;
+using System;
+using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Seatbelt.Commands
+namespace O_F41F88FA.Commands
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     class CommandOutputTypeAttribute : Attribute
@@ -9,7 +12,7 @@ namespace Seatbelt.Commands
 
         public CommandOutputTypeAttribute(Type outputDTO)
         {
-            if (!typeof(CommandDTOBase).IsAssignableFrom(outputDTO))
+            if (!typeof(O_4AED570F).IsAssignableFrom(outputDTO))
             {
                 throw new Exception($"CommandOutputTypeAttribute: the specified output DTO({outputDTO}) does not inherit from CommandDTOBase");
             }

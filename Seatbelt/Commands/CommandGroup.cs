@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace Seatbelt.Commands
+namespace O_F41F88FA.Commands
 {
     [Flags]
     public enum CommandGroup

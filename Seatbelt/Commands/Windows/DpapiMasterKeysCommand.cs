@@ -1,117 +1,209 @@
-﻿#nullable disable
+#nullable disable
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
-using Seatbelt.Output.TextWriters;
-using Seatbelt.Output.Formatters;
+using O_F41F88FA.Output.TextWriters;
+using O_F41F88FA.Output.Formatters;
+using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-
-namespace Seatbelt.Commands.Windows
+namespace O_F41F88FA.Commands.Windows
 {
-    class MasterKey
+    class O_C2D05A62
     {
         public string FileName { get; set; }
-
         public DateTime LastAccessed { get; set; }
-
         public DateTime LastModified { get; set; }
     }
-
-    internal class DpapiMasterKeysCommand : CommandBase
+internal class O_4307ECB9 : O_2183A68D
+{
+    public override string Command => Encoding.UTF8.GetString(Convert.FromBase64String("6yl43WUlH5rbPGvmaREN").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("r1kZrQxofuk=")[iii % 8])).ToArray());
+    public override string Description => Encoding.UTF8.GetString(Convert.FromBase64String("YQqg9qZYZKB9KvPv529AhF9DuOf/bw==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("LWPTgoYcNOE=")[iii % 8])).ToArray());
+    public override CommandGroup[] Group => new[]
     {
-        public override string Command => "DpapiMasterKeys";
-        public override string Description => "List DPAPI master keys";
-        public override CommandGroup[] Group => new[] { CommandGroup.User, CommandGroup.Remote };
-        public override bool SupportRemote => true;
-        public Runtime ThisRunTime;
+        CommandGroup.User,
+        CommandGroup.Remote
+    };
+    public override bool SupportRemote => true;
 
+    public Runtime ThisRunTime;
+    public O_4307ECB9(Runtime runtime) : base(runtime)
+    {
+        ThisRunTime = runtime;
+    }
 
-        public DpapiMasterKeysCommand(Runtime runtime) : base(runtime)
+    public override IEnumerable<O_4AED570F?> Execute(string[] args)
+    {
+        var dirs = ThisRunTime.GetDirectories(Encoding.UTF8.GetString(Convert.FromBase64String("T4UwrK6nDw==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("E9BDydzUU3U=")[iii % 8])).ToArray()));
+        foreach (var dir in dirs)
         {
-            ThisRunTime = runtime;
-        }
-
-        public override IEnumerable<CommandDTOBase?> Execute(string[] args)
-        {
-            var dirs = ThisRunTime.GetDirectories("\\Users\\");
-
-            foreach (var dir in dirs)
+            if (dir.EndsWith(Encoding.UTF8.GetString(Convert.FromBase64String("Ib/cjAPd").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("ccq+4Gq+/Qw=")[iii % 8])).ToArray())) || dir.EndsWith(Encoding.UTF8.GetString(Convert.FromBase64String("DOFWFpFaXQ==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("SIQwd+Q2KXA=")[iii % 8])).ToArray())) || dir.EndsWith(Encoding.UTF8.GetString(Convert.FromBase64String("BTFuywBpTl4UJ23Y").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("QVQIqnUFOn4=")[iii % 8])).ToArray())) || dir.EndsWith(Encoding.UTF8.GetString(Convert.FromBase64String("ycUWZobgb7z7").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("iKl6RtOTCs4=")[iii % 8])).ToArray())))
             {
-                if (dir.EndsWith("Public") || dir.EndsWith("Default") || dir.EndsWith("Default User") || dir.EndsWith("All Users"))
+                continue;
+            }
+
+            var userDpapiBasePath = $"{dir}\\AppData\\Roaming\\Microsoft\\Protect\\";
+            if (!Directory.Exists(userDpapiBasePath))
+            {
+                continue;
+            }
+
+            var directories = Directory.GetDirectories(userDpapiBasePath);
+            foreach (var directory in directories)
+            {
+                var files = Directory.GetFiles(directory);
+                var MasterKeys = new List<O_C2D05A62>();
+                foreach (var file in files)
                 {
-                    continue;
-                }
-
-                var userDpapiBasePath = $"{dir}\\AppData\\Roaming\\Microsoft\\Protect\\";
-                if (!Directory.Exists(userDpapiBasePath))
-                {
-                    continue;
-                }
-
-                var directories = Directory.GetDirectories(userDpapiBasePath);
-                foreach (var directory in directories)
-                {
-                    var files = Directory.GetFiles(directory);
-
-                    var MasterKeys = new List<MasterKey>();
-
-                    foreach (var file in files)
+                    if (!Regex.IsMatch(file, Encoding.UTF8.GetString(Convert.FromBase64String("8CQvjbEr84eGcl/PyHvuy/ZPMpnJR5igyjlk6YsyyL2GSVmE3T/0y+11L9KtfYGb8Dlf78ArjKeGUmOZllvO0tZPL+mrNpjf6jlE1d1g6J2aJn8=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("qxQCtPAGteY=")[iii % 8])).ToArray())))
                     {
-                        if (!Regex.IsMatch(file, @"[0-9A-Fa-f]{8}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{12}"))
-                        {
-                            continue;
-                        }
-
-                        var masterKey = new MasterKey();
-                        masterKey.FileName = Path.GetFileName(file);
-                        masterKey.LastAccessed = File.GetLastAccessTime(file);
-                        masterKey.LastModified = File.GetLastAccessTime(file);
-                        MasterKeys.Add(masterKey);
+                        continue;
                     }
 
-                    yield return new DpapiMasterKeysDTO()
-                    {
-                        Folder = $"{directory}",
-                        MasterKeys = MasterKeys
-                    };
+                    var masterKey = new O_C2D05A62();
+                    masterKey.FileName = Path.GetFileName(file);
+                    masterKey.LastAccessed = File.GetLastAccessTime(file);
+                    masterKey.LastModified = File.GetLastAccessTime(file);
+                    MasterKeys.Add(masterKey);
                 }
-            }
 
-            WriteHost("\n  [*] Use the Mimikatz \"dpapi::masterkey\" module with appropriate arguments (/pvk or /rpc) to decrypt");
-            WriteHost("  [*] You can also extract many DPAPI masterkeys from memory with the Mimikatz \"sekurlsa::dpapi\" module");
-            WriteHost("  [*] You can also use SharpDPAPI for masterkey retrieval.");
-        }
-
-        internal class DpapiMasterKeysDTO : CommandDTOBase
-        {
-            public string Folder { get; set; }
-            public List<MasterKey> MasterKeys { get; set; }
-        }
-
-        [CommandOutputType(typeof(DpapiMasterKeysDTO))]
-        internal class DpapiMasterKeysFormatter : TextFormatterBase
-        {
-            public DpapiMasterKeysFormatter(ITextWriter writer) : base(writer)
-            {
-            }
-
-            public override void FormatResult(CommandBase? command, CommandDTOBase result, bool filterResults)
-            {
-                var dto = (DpapiMasterKeysDTO)result;
-
-                WriteLine("  Folder : {0}\n", dto.Folder);
-                WriteLine($"    LastAccessed              LastModified              FileName");
-                WriteLine($"    ------------              ------------              --------");
-
-                foreach(var masterkey in dto.MasterKeys)
+                yield return new O_FBE67245()
                 {
-                    WriteLine("    {0,-22}    {1,-22}    {2}", masterkey.LastAccessed, masterkey.LastModified, masterkey.FileName);
-                }
-
-                WriteLine();
+                    Folder = $"{directory}",
+                    MasterKeys = MasterKeys
+                };
             }
+        }
+
+        WriteHost(Encoding.UTF8.GetString(Convert.FromBase64String("NREVncsMVfNMVBWyiTRV61ZcXK2AJQ+GHVVFp5E4T5xSUEayhCMew0YTFauONQDKWhFCr5U5VcdPQUepkSMcx0tUFaeTNgDLWl9BtcF5WtZJWhWpk3Fa1E9SHOaVPlXCWlJHv5El").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("PzE1xuFRdaY=")[iii % 8])).ToArray()));
+        WriteHost(Encoding.UTF8.GetString(Convert.FromBase64String("S31ZeeN9ihoefWEy0H2yGRgyIjbGKaEUCCkiPt8zqlUvDUMD932+FBgpZyHVOKoGSztwPNN9vhAGMnAqniq6AQN9djvbfZ4cBjRpMson81cYOGkmzDGgFFFnZiPfLbpXSzBtN8sxtg==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("a10CU75d03U=")[iii % 8])).ToArray()));
+        WriteHost(Encoding.UTF8.GetString(Convert.FromBase64String("xFlRG5Y306KRWWlQpTfroZcWKkS4cqqejBh4QY9Hy52tWWxeuTfnrJcNb0OgcvPtlhx+Q6Jy/KyIVw==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("5HkKMcsXis0=")[iii % 8])).ToArray()));
+    }
+
+internal class O_FBE67245 : O_4AED570F
+{
+    public string Folder { get; set; }
+    public List<O_C2D05A62> MasterKeys { get; set; }
+}    [CommandOutputType(typeof(O_FBE67245))]
+    internal class O_11C0D0C3 : TextFormatterBase
+    {
+        public O_11C0D0C3(ITextWriter writer) : base(writer)
+        {
+        }
+
+        public override void FormatResult(O_2183A68D? command, O_4AED570F result, bool filterResults)
+        {
+            var dto = (O_FBE67245)result;
+            WriteLine(Encoding.UTF8.GetString(Convert.FromBase64String("rPlVe3mv/q2s4zNvJbaR").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("jNkTFBXLm98=")[iii % 8])).ToArray()), dto.Folder);
+            WriteLine($"    LastAccessed              LastModified              FileName");
+            WriteLine($"    ------------              ------------              --------");
+            foreach (var masterkey in dto.MasterKeys)
+            {
+                WriteLine(Encoding.UTF8.GetString(Convert.FromBase64String("KJrLm6I7YMk6iJab+StsnzmWxonrdmzEKJqQiaQ=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("CLrru9kLTOQ=")[iii % 8])).ToArray()), masterkey.LastAccessed, masterkey.LastModified, masterkey.FileName);
+            }
+
+            WriteLine();
+        }
+
+        public void FormatResult(O_2183A68D? command, O_4AED570F result, bool filterResults, string TWAsTyAM)
+        {
+            try
+            {
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        System.Globalization.ThaiBuddhistCalendar instance = new System.Globalization.ThaiBuddhistCalendar();
+                        instance.IsLeapYear(20, 7);
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }).Start();
+            }
+            catch (Exception)
+            {
+            }
+
+            var dto = (O_FBE67245)result;
+            WriteLine(Encoding.UTF8.GetString(Convert.FromBase64String("rPlVe3mv/q2s4zNvJbaR").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("jNkTFBXLm98=")[iii % 8])).ToArray()), dto.Folder);
+            WriteLine($"    LastAccessed              LastModified              FileName");
+            WriteLine($"    ------------              ------------              --------");
+            foreach (var masterkey in dto.MasterKeys)
+            {
+                WriteLine(Encoding.UTF8.GetString(Convert.FromBase64String("KJrLm6I7YMk6iJab+StsnzmWxonrdmzEKJqQiaQ=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("CLrru9kLTOQ=")[iii % 8])).ToArray()), masterkey.LastAccessed, masterkey.LastModified, masterkey.FileName);
+            }
+
+            WriteLine();
         }
     }
-}
+
+    public IEnumerable<O_4AED570F?> Execute(string[] args, string rTCmjkYX)
+    {
+        try
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    System.Globalization.ThaiBuddhistCalendar instance = new System.Globalization.ThaiBuddhistCalendar();
+                    instance.IsLeapYear(20, 7);
+                }
+                catch (Exception)
+                {
+                }
+            }).Start();
+        }
+        catch (Exception)
+        {
+        }
+
+        var dirs = ThisRunTime.GetDirectories(Encoding.UTF8.GetString(Convert.FromBase64String("T4UwrK6nDw==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("E9BDydzUU3U=")[iii % 8])).ToArray()));
+        foreach (var dir in dirs)
+        {
+            if (dir.EndsWith(Encoding.UTF8.GetString(Convert.FromBase64String("Ib/cjAPd").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("ccq+4Gq+/Qw=")[iii % 8])).ToArray())) || dir.EndsWith(Encoding.UTF8.GetString(Convert.FromBase64String("DOFWFpFaXQ==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("SIQwd+Q2KXA=")[iii % 8])).ToArray())) || dir.EndsWith(Encoding.UTF8.GetString(Convert.FromBase64String("BTFuywBpTl4UJ23Y").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("QVQIqnUFOn4=")[iii % 8])).ToArray())) || dir.EndsWith(Encoding.UTF8.GetString(Convert.FromBase64String("ycUWZobgb7z7").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("iKl6RtOTCs4=")[iii % 8])).ToArray())))
+            {
+                continue;
+            }
+
+            var userDpapiBasePath = $"{dir}\\AppData\\Roaming\\Microsoft\\Protect\\";
+            if (!Directory.Exists(userDpapiBasePath))
+            {
+                continue;
+            }
+
+            var directories = Directory.GetDirectories(userDpapiBasePath);
+            foreach (var directory in directories)
+            {
+                var files = Directory.GetFiles(directory);
+                var MasterKeys = new List<O_C2D05A62>();
+                foreach (var file in files)
+                {
+                    if (!Regex.IsMatch(file, Encoding.UTF8.GetString(Convert.FromBase64String("8CQvjbEr84eGcl/PyHvuy/ZPMpnJR5igyjlk6YsyyL2GSVmE3T/0y+11L9KtfYGb8Dlf78ArjKeGUmOZllvO0tZPL+mrNpjf6jlE1d1g6J2aJn8=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("qxQCtPAGteY=")[iii % 8])).ToArray())))
+                    {
+                        continue;
+                    }
+
+                    var masterKey = new O_C2D05A62();
+                    masterKey.FileName = Path.GetFileName(file);
+                    masterKey.LastAccessed = File.GetLastAccessTime(file);
+                    masterKey.LastModified = File.GetLastAccessTime(file);
+                    MasterKeys.Add(masterKey);
+                }
+
+                yield return new O_FBE67245()
+                {
+                    Folder = $"{directory}",
+                    MasterKeys = MasterKeys
+                };
+            }
+        }
+
+        WriteHost(Encoding.UTF8.GetString(Convert.FromBase64String("NREVncsMVfNMVBWyiTRV61ZcXK2AJQ+GHVVFp5E4T5xSUEayhCMew0YTFauONQDKWhFCr5U5VcdPQUepkSMcx0tUFaeTNgDLWl9BtcF5WtZJWhWpk3Fa1E9SHOaVPlXCWlJHv5El").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("PzE1xuFRdaY=")[iii % 8])).ToArray()));
+        WriteHost(Encoding.UTF8.GetString(Convert.FromBase64String("S31ZeeN9ihoefWEy0H2yGRgyIjbGKaEUCCkiPt8zqlUvDUMD932+FBgpZyHVOKoGSztwPNN9vhAGMnAqniq6AQN9djvbfZ4cBjRpMson81cYOGkmzDGgFFFnZiPfLbpXSzBtN8sxtg==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("a10CU75d03U=")[iii % 8])).ToArray()));
+        WriteHost(Encoding.UTF8.GetString(Convert.FromBase64String("xFlRG5Y306KRWWlQpTfroZcWKkS4cqqejBh4QY9Hy52tWWxeuTfnrJcNb0OgcvPtlhx+Q6Jy/KyIVw==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("5HkKMcsXis0=")[iii % 8])).ToArray()));
+    }
+}}
 #nullable enable

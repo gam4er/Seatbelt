@@ -1,11 +1,13 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Seatbelt
+namespace O_F41F88FA
 {
-    public static class VaultCli
+    public static class O_7A5E6AD0
     {
-        // pulled directly from @djhohnstein's SharpWeb project: https://github.com/djhohnstein/SharpWeb/blob/master/Edge/SharpEdge.cs
         public enum VAULT_ELEMENT_TYPE : int
         {
             Undefined = -1,
@@ -73,16 +75,8 @@ namespace Seatbelt
             public VAULT_SCHEMA_ELEMENT_ID SchemaElementId;
             [FieldOffset(8)]
             public VAULT_ELEMENT_TYPE Type;
-            //[FieldOffset(16)]
-            //public Guid Guid;
         }
 
-        //typedef struct _VAULT_BYTE_BUFFER
-        //{
-        //    DWORD Length;
-        //    PBYTE Value;
-        //}
-        //VAULT_BYTE_BUFFER, *PVAULT_BYTE_BUFFER;
         [StructLayout(LayoutKind.Sequential)]
         public struct VAULT_BYTE_ARRAY
         {
@@ -92,25 +86,17 @@ namespace Seatbelt
 
         [DllImport("vaultcli.dll")]
         public static extern int VaultOpenVault(ref Guid vaultGuid, uint offset, ref IntPtr vaultHandle);
-
         [DllImport("vaultcli.dll")]
         public static extern int VaultCloseVault(ref IntPtr vaultHandle);
-
         [DllImport("vaultcli.dll")]
         public static extern int VaultFree(ref IntPtr vaultHandle);
-
         [DllImport("vaultcli.dll")]
         public static extern int VaultEnumerateVaults(int offset, ref int vaultCount, ref IntPtr vaultGuid);
-
         [DllImport("vaultcli.dll")]
         public static extern int VaultEnumerateItems(IntPtr vaultHandle, int chunkSize, ref int vaultItemCount, ref IntPtr vaultItem);
-
         [DllImport("vaultcli.dll", EntryPoint = "VaultGetItem")]
         public static extern int VaultGetItem_WIN8(IntPtr vaultHandle, ref Guid schemaId, IntPtr pResourceElement, IntPtr pIdentityElement, IntPtr pPackageSid, IntPtr zero, int arg6, ref IntPtr passwordVaultPtr);
-
         [DllImport("vaultcli.dll", EntryPoint = "VaultGetItem")]
         public static extern int VaultGetItem_WIN7(IntPtr vaultHandle, ref Guid schemaId, IntPtr pResourceElement, IntPtr pIdentityElement, IntPtr zero, int arg5, ref IntPtr passwordVaultPtr);
-
     }
-
 }

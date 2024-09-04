@@ -1,30 +1,25 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-
-namespace Seatbelt.Interop
+namespace O_F41F88FA.Interop
 {
     internal class Ntdll
     {
-        #region Function Definitions
         [DllImport("ntdll.dll", SetLastError = true)]
-        public static extern int NtQueryInformationProcess(
-        IntPtr processHandle,
-        PROCESSINFOCLASS processInformationClass,
-        ref PsProtection processInformation,
-        int processInformationLength,
-        out int returnLength);
+        public static extern int NtQueryInformationProcess(IntPtr processHandle, PROCESSINFOCLASS processInformationClass, ref PsProtection processInformation, int processInformationLength, out int returnLength);
     }
-    #endregion
 
-    #region Enum Definitions
     [Flags]
     public enum PROCESSINFOCLASS
     {
         ProcessProtectionInformation = 0x3D,
     }
+
     [StructLayout(LayoutKind.Sequential)]
     public struct PsProtection
     {
@@ -32,6 +27,7 @@ namespace Seatbelt.Interop
         public PsProtectedSigner Signer;
         public PsProtectedAudit Audit;
     }
+
     [Flags]
     public enum PsProtectedType
     {
@@ -40,6 +36,7 @@ namespace Seatbelt.Interop
         PsProtectedTypeProtected = 0x2,
         PsProtectedTypeMax = 0x3,
     }
+
     [Flags]
     public enum PsProtectedSigner
     {
@@ -84,7 +81,4 @@ namespace Seatbelt.Interop
         PsProtectedSignerWinTcbMax = 63,
         PsProtectedSignerMaxMax = 73
     }
-    #endregion
 }
-
-

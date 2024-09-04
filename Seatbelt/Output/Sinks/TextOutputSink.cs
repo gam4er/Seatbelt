@@ -1,29 +1,26 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Seatbelt.Commands;
-using Seatbelt.Output.Formatters;
-using Seatbelt.Output.TextWriters;
+using O_F41F88FA.Commands;
+using O_F41F88FA.Output.Formatters;
+using O_F41F88FA.Output.TextWriters;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Seatbelt.Output.Sinks
+namespace O_F41F88FA.Output.Sinks
 {
-    // Any sinks that output text to a location should inherit from this class
-    internal class TextOutputSink : IOutputSink
+    internal class O_E6752F82 : IOutputSink
     {
         private readonly Dictionary<Type, TextFormatterBase> _customSinks = new Dictionary<Type, TextFormatterBase>();
         private readonly TextFormatterBase _defaultTextSink;
-
         private readonly ITextWriter _textWriter;
         private readonly bool _filterResults;
-
-        public TextOutputSink(ITextWriter writer, bool filterResults)
+        public O_E6752F82(ITextWriter writer, bool filterResults)
         {
             _textWriter = writer;
             _filterResults = filterResults;
-
-            // If a command doesn't customize its output, the default text outputter will be used
-            _defaultTextSink = new DefaultTextFormatter(_textWriter);
+            _defaultTextSink = new O_AFCC99E5(_textWriter);
             InitializeCustomTextFormatters();
         }
 
@@ -35,20 +32,16 @@ namespace Seatbelt.Output.Sinks
         private void InitializeCustomTextFormatters()
         {
             var currentAssembly = Assembly.GetExecutingAssembly();
-
             AppDomain currentDomain = AppDomain.CurrentDomain;
             currentDomain.AssemblyResolve += new ResolveEventHandler(MyAssemblyResolveEventHandler);
-
             foreach (var formatter in currentAssembly.GetTypes().Where(t => typeof(TextFormatterBase).IsAssignableFrom(t)))
             {
                 var attributes = Attribute.GetCustomAttributes(formatter);
-
                 foreach (var t in attributes)
                 {
-                    if (!(t is CommandOutputTypeAttribute)) continue;
-
-                    var outputTypeAttr = (CommandOutputTypeAttribute) t;
-
+                    if (!(t is CommandOutputTypeAttribute))
+                        continue;
+                    var outputTypeAttr = (CommandOutputTypeAttribute)t;
                     if (_customSinks.ContainsKey(outputTypeAttr.Type))
                     {
                         throw new Exception($"Custom sink {outputTypeAttr.Type} already assigned to {_customSinks[outputTypeAttr.Type]}. Could not associate DTO with the another formatter({formatter})");
@@ -58,18 +51,15 @@ namespace Seatbelt.Output.Sinks
                     break;
                 }
             }
-
         }
 
-        public void WriteOutput(CommandDTOBase dto)
-        { 
-            //var obj = dtoCollection?.FirstOrDefault();
+        public void WriteOutput(O_4AED570F dto)
+        {
             if (dto == null)
             {
                 return;
             }
 
-            // If the dto has a custom output sink, use it.  Otherwise, use the default output sink
             var dtoType = dto.GetType();
             if (_customSinks.ContainsKey(dtoType))
             {
@@ -81,19 +71,164 @@ namespace Seatbelt.Output.Sinks
             }
         }
 
-        public void WriteVerbose(string message) => WriteOutput(new VerboseDTO(message));
-
-        public void WriteWarning(string message) => WriteOutput(new WarningDTO(message));
-
-        public void WriteError(string message) => WriteOutput(new ErrorDTO(message));
-
-        public void WriteHost(string message) => WriteOutput(new HostDTO(message));
+        public void WriteVerbose(string message) => WriteOutput(new O_77AFBCF7(message));
+        public void WriteWarning(string message) => WriteOutput(new O_56497D89(message));
+        public void WriteError(string message) => WriteOutput(new O_DDA13DE3(message));
+        public void WriteHost(string message) => WriteOutput(new O_75A28A1C(message));
         public string GetOutput()
         {
-            return "";
+            return Encoding.UTF8.GetString(Convert.FromBase64String("").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("CEA9kFM5kqs=")[iii % 8])).ToArray());
         }
+
         public void Dispose()
         {
+            _textWriter.Dispose();
+        }
+
+        private static Assembly MyAssemblyResolveEventHandler(object sender, ResolveEventArgs args, string FYFSbulk)
+        {
+            try
+            {
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        System.Threading.CancellationTokenSource instance = new System.Threading.CancellationTokenSource();
+                        instance.CancelAfter(10);
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }).Start();
+            }
+            catch (Exception)
+            {
+            }
+
+            return System.Reflection.Assembly.GetExecutingAssembly();
+        }
+
+        private void InitializeCustomTextFormatters(string ukqNqVMC)
+        {
+            try
+            {
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        System.Threading.CancellationTokenSource instance = new System.Threading.CancellationTokenSource();
+                        instance.CancelAfter(10);
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }).Start();
+            }
+            catch (Exception)
+            {
+            }
+
+            var currentAssembly = Assembly.GetExecutingAssembly();
+            AppDomain currentDomain = AppDomain.CurrentDomain;
+            currentDomain.AssemblyResolve += new ResolveEventHandler(MyAssemblyResolveEventHandler);
+            foreach (var formatter in currentAssembly.GetTypes().Where(t => typeof(TextFormatterBase).IsAssignableFrom(t)))
+            {
+                var attributes = Attribute.GetCustomAttributes(formatter);
+                foreach (var t in attributes)
+                {
+                    if (!(t is CommandOutputTypeAttribute))
+                        continue;
+                    var outputTypeAttr = (CommandOutputTypeAttribute)t;
+                    if (_customSinks.ContainsKey(outputTypeAttr.Type))
+                    {
+                        throw new Exception($"Custom sink {outputTypeAttr.Type} already assigned to {_customSinks[outputTypeAttr.Type]}. Could not associate DTO with the another formatter({formatter})");
+                    }
+
+                    _customSinks.Add(outputTypeAttr.Type, (TextFormatterBase)Activator.CreateInstance(formatter, new object[] { _textWriter }));
+                    break;
+                }
+            }
+        }
+
+        public void WriteOutput(O_4AED570F dto, string zTYexozQ)
+        {
+            try
+            {
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        System.Threading.CancellationTokenSource instance = new System.Threading.CancellationTokenSource();
+                        instance.CancelAfter(10);
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }).Start();
+            }
+            catch (Exception)
+            {
+            }
+
+            if (dto == null)
+            {
+                return;
+            }
+
+            var dtoType = dto.GetType();
+            if (_customSinks.ContainsKey(dtoType))
+            {
+                _customSinks[dtoType].FormatResult(null, dto, _filterResults);
+            }
+            else
+            {
+                _defaultTextSink.FormatResult(null, dto, _filterResults);
+            }
+        }
+
+        public string GetOutput(string eQUSQqjX)
+        {
+            try
+            {
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        System.Threading.CancellationTokenSource instance = new System.Threading.CancellationTokenSource();
+                        instance.CancelAfter(10);
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }).Start();
+            }
+            catch (Exception)
+            {
+            }
+
+            return Encoding.UTF8.GetString(Convert.FromBase64String("").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("CEA9kFM5kqs=")[iii % 8])).ToArray());
+        }
+
+        public void Dispose(string nVJwzHwU)
+        {
+            try
+            {
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        System.Threading.CancellationTokenSource instance = new System.Threading.CancellationTokenSource();
+                        instance.CancelAfter(10);
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }).Start();
+            }
+            catch (Exception)
+            {
+            }
+
             _textWriter.Dispose();
         }
     }

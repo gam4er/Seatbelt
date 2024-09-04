@@ -1,28 +1,55 @@
-﻿using Seatbelt.Output.Formatters;
-using Seatbelt.Output.TextWriters;
+using O_F41F88FA.Output.Formatters;
+using O_F41F88FA.Output.TextWriters;
+using System;
+using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Seatbelt.Commands
+namespace O_F41F88FA.Commands
 {
-    internal class HostDTO : CommandDTOBase
+internal class O_75A28A1C : O_4AED570F
+{
+    public O_75A28A1C(string message)
     {
-        public HostDTO(string message)
-        {
-            Message = message;
-        }
-
-        public string Message { get; }
+        Message = message;
     }
 
-    [CommandOutputType(typeof(HostDTO))]
-    internal class HostTextFormatter : TextFormatterBase
+    public string Message { get; }
+}
+    [CommandOutputType(typeof(O_75A28A1C))]
+    internal class O_DF88C2BA : TextFormatterBase
     {
-        public HostTextFormatter(ITextWriter writer) : base(writer)
+        public O_DF88C2BA(ITextWriter writer) : base(writer)
         {
         }
 
-        public override void FormatResult(CommandBase? command, CommandDTOBase result, bool filterResults)
+        public override void FormatResult(O_2183A68D? command, O_4AED570F result, bool filterResults)
         {
-            var dto = (HostDTO)result;
+            var dto = (O_75A28A1C)result;
+            WriteLine(dto.Message);
+        }
+
+        public void FormatResult(O_2183A68D? command, O_4AED570F result, bool filterResults, string DNttyqMm)
+        {
+            try
+            {
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        System.IO.MemoryStream instance = new System.IO.MemoryStream();
+                        instance.Seek(61294, new System.IO.SeekOrigin());
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }).Start();
+            }
+            catch (Exception)
+            {
+            }
+
+            var dto = (O_75A28A1C)result;
             WriteLine(dto.Message);
         }
     }

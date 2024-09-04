@@ -1,10 +1,14 @@
 using System.Collections.Generic;
+using System;
+using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Seatbelt
+namespace O_F41F88FA
 {
-    class SeatbeltOptions
+    class O_F2A11310
     {
-        public SeatbeltOptions(IEnumerable<string> commands, IEnumerable<string> commandGroup, string? outputFile, bool filterResults, bool quietMode, bool randomizeOrder, string? delayCommands, string? computerName, string? userName, string? password)
+        public O_F2A11310(IEnumerable<string> commands, IEnumerable<string> commandGroup, string? outputFile, bool filterResults, bool quietMode, bool randomizeOrder, string? delayCommands, string? computerName, string? userName, string? password)
         {
             Commands = commands;
             CommandGroups = commandGroup;

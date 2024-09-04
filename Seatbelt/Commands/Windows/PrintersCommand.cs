@@ -1,69 +1,104 @@
-﻿#nullable disable
+#nullable disable
 using System.Collections.Generic;
 using System.Management;
-using Seatbelt.Util;
+using O_F41F88FA.Util;
+using System;
+using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-
-namespace Seatbelt.Commands.Windows
+namespace O_F41F88FA.Commands.Windows
 {
-    internal class PrintersCommand : CommandBase
+internal class O_41DEEC1B : O_2183A68D
+{
+    public override string Command => Encoding.UTF8.GetString(Convert.FromBase64String("BV1jvkFN1sc=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("VS8K0DUopLQ=")[iii % 8])).ToArray());
+    public override string Description => Encoding.UTF8.GetString(Convert.FromBase64String("27GHj+rLaKv2/6SJ4slwq+Cs1NP9zmXuxZK90g==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("kt/0+4unBM4=")[iii % 8])).ToArray());
+    public override CommandGroup[] Group => new[]
     {
-        public override string Command => "Printers";
-        public override string Description => "Installed Printers (via WMI)";
-        public override CommandGroup[] Group => new[] { CommandGroup.Misc };
-        public override bool SupportRemote => false; // could if it wasn't for the SDDL
+        CommandGroup.Misc
+    };
+    public override bool SupportRemote => false;
 
-        public PrintersCommand(Runtime runtime) : base(runtime)
-        {
-        }
+    public O_41DEEC1B(Runtime runtime) : base(runtime)
+    {
+    }
 
-        public override IEnumerable<CommandDTOBase?> Execute(string[] args)
+    public override IEnumerable<O_4AED570F?> Execute(string[] args)
+    {
+        var printerQuery = new ManagementObjectSearcher(Encoding.UTF8.GetString(Convert.FromBase64String("tOb6wTu5agrHxcTrFc0dSYmQhNsonyNOk8bE").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("56O2hHjtSiA=")[iii % 8])).ToArray()));
+        foreach (var printer in printerQuery.Get())
         {
-            // lists installed printers via WMI (the Win32_Printer class)
-            var printerQuery = new ManagementObjectSearcher("SELECT * from Win32_Printer");
-            foreach (var printer in printerQuery.Get())
+            var isDefault = (bool)printer.GetPropertyValue(Encoding.UTF8.GetString(Convert.FromBase64String("SrMYLuFPkg==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("DtZ+T5Qj5g0=")[iii % 8])).ToArray()));
+            var isNetworkPrinter = (bool)printer.GetPropertyValue(Encoding.UTF8.GetString(Convert.FromBase64String("pv9DQLKoJw==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("6Jo3N93aTPQ=")[iii % 8])).ToArray()));
+            string printerSDDL = null;
+            var printerName = $"{printer.GetPropertyValue(Encoding.UTF8.GetString(Convert.FromBase64String("wbX/lA==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("j9SS8fykl1M=")[iii % 8])).ToArray()))}";
+            try
             {
-                var isDefault = (bool)printer.GetPropertyValue("Default");
-                var isNetworkPrinter = (bool)printer.GetPropertyValue("Network");
-                string printerSDDL = null;
-                var printerName = $"{printer.GetPropertyValue("Name")}";
+                var info = SecurityUtil.GetSecurityInfos(printerName, Interop.Advapi32.SE_OBJECT_TYPE.SE_PRINTER);
+                printerSDDL = info.SDDL;
+            }
+            catch
+            {
+            }
 
+            yield return new O_305008C6(printerName, $"{printer.GetPropertyValue(Encoding.UTF8.GetString(Convert.FromBase64String("8zGUIqLv").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("oEX1VtechZI=")[iii % 8])).ToArray()))}", printerSDDL, isDefault, isNetworkPrinter);
+        }
+    }
+
+    public IEnumerable<O_4AED570F?> Execute(string[] args, string OyTekoOe)
+    {
+        try
+        {
+            Task.Run(() =>
+            {
                 try
                 {
-                    var info = SecurityUtil.GetSecurityInfos(printerName, Interop.Advapi32.SE_OBJECT_TYPE.SE_PRINTER);
-                    printerSDDL = info.SDDL;
+                    System.Text.ASCIIEncoding instance = new System.Text.ASCIIEncoding();
+                    instance.GetMaxCharCount(27);
                 }
-                catch
+                catch (Exception)
                 {
-                    // eat it
                 }
-
-                yield return new InstalledPrintersDTO(
-                    printerName,
-                    $"{printer.GetPropertyValue("Status")}",
-                    printerSDDL,
-                    isDefault,
-                    isNetworkPrinter
-                );
-            }
+            }).Start();
         }
-    }
-
-    internal class InstalledPrintersDTO : CommandDTOBase
-    {
-        public InstalledPrintersDTO(string name, string status, string sddl, bool isDefault, bool isNetworkPrinter)
+        catch (Exception)
         {
-            Name = name;
-            Status = status;
-            Sddl = sddl;
-            IsDefault = isDefault;
-            IsNetworkPrinter = isNetworkPrinter;
         }
-        public string Name { get; }
-        public string Status { get; }
-        public string Sddl { get; }
-        public bool IsDefault { get; }
-        public bool IsNetworkPrinter { get; }
+
+        var printerQuery = new ManagementObjectSearcher(Encoding.UTF8.GetString(Convert.FromBase64String("tOb6wTu5agrHxcTrFc0dSYmQhNsonyNOk8bE").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("56O2hHjtSiA=")[iii % 8])).ToArray()));
+        foreach (var printer in printerQuery.Get())
+        {
+            var isDefault = (bool)printer.GetPropertyValue(Encoding.UTF8.GetString(Convert.FromBase64String("SrMYLuFPkg==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("DtZ+T5Qj5g0=")[iii % 8])).ToArray()));
+            var isNetworkPrinter = (bool)printer.GetPropertyValue(Encoding.UTF8.GetString(Convert.FromBase64String("pv9DQLKoJw==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("6Jo3N93aTPQ=")[iii % 8])).ToArray()));
+            string printerSDDL = null;
+            var printerName = $"{printer.GetPropertyValue(Encoding.UTF8.GetString(Convert.FromBase64String("wbX/lA==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("j9SS8fykl1M=")[iii % 8])).ToArray()))}";
+            try
+            {
+                var info = SecurityUtil.GetSecurityInfos(printerName, Interop.Advapi32.SE_OBJECT_TYPE.SE_PRINTER);
+                printerSDDL = info.SDDL;
+            }
+            catch
+            {
+            }
+
+            yield return new O_305008C6(printerName, $"{printer.GetPropertyValue(Encoding.UTF8.GetString(Convert.FromBase64String("8zGUIqLv").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("oEX1VtechZI=")[iii % 8])).ToArray()))}", printerSDDL, isDefault, isNetworkPrinter);
+        }
     }
-}
+}internal class O_305008C6 : O_4AED570F
+{
+    public O_305008C6(string name, string status, string sddl, bool isDefault, bool isNetworkPrinter)
+    {
+        Name = name;
+        Status = status;
+        Sddl = sddl;
+        IsDefault = isDefault;
+        IsNetworkPrinter = isNetworkPrinter;
+    }
+
+    public string Name { get; }
+    public string Status { get; }
+    public string Sddl { get; }
+    public bool IsDefault { get; }
+    public bool IsNetworkPrinter { get; }
+}}
 #nullable enable

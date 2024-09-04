@@ -7,276 +7,437 @@ using System.Management;
 using System.Security.AccessControl;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
-using Seatbelt.Util;
+using O_F41F88FA.Util;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Seatbelt.Commands.Windows
+namespace O_F41F88FA.Commands.Windows
 {
-    internal class ServicesCommand : CommandBase
+internal class O_830D0A12 : O_2183A68D
+{
+    public override string Command => Encoding.UTF8.GetString(Convert.FromBase64String("6NbWVXQJsn0=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("u7OkIx1q1w4=")[iii % 8])).ToArray());
+    public override string Description => Encoding.UTF8.GetString(Convert.FromBase64String("hMcNyBy0sL/31RbKHfezpbvHX9cbsbrstM0SzhS5rOy5wxLbBvehpLbWX9oaufK498EQ0AG2vKL3hTLXFqW6v7jEC5lZ9/fhsdcT0lf3sbm60gyeFLu57KfQEN0QpKappA==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("16J/vnXX1cw=")[iii % 8])).ToArray());
+    public override CommandGroup[] Group => new[]
     {
-        public override string Command => "Services";
-        public override string Description => "Services with file info company names that don't contain 'Microsoft', \"-full\" dumps all processes";
-        public override CommandGroup[] Group => new[] { CommandGroup.System };
-        public override bool SupportRemote => false; // tracking back some of the  service stuff needs local API calls
+        CommandGroup.System
+    };
+    public override bool SupportRemote => false;
 
-        public ServicesCommand(Runtime runtime) : base(runtime)
+    public O_830D0A12(Runtime runtime) : base(runtime)
+    {
+    }
+
+    public override IEnumerable<O_4AED570F?> Execute(string[] args)
+    {
+        WriteHost(Runtime.FilterResults ? Encoding.UTF8.GetString(Convert.FromBase64String("Ehj6kHDWwI4zBPvWSZ/wmS4B/dNYzIPUKh71kGry6tVW").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("XHeUsD2/o/w=")[iii % 8])).ToArray()) : Encoding.UTF8.GetString(Convert.FromBase64String("ckw5fuikyD1aQzAtm+nMIlIAAhPy6LA=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("MyBVXrvBuks=")[iii % 8])).ToArray()));
+        var wmiData = new ManagementObjectSearcher(Encoding.UTF8.GetString(Convert.FromBase64String("3Vq9Its3J/jZBw==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("rzXSVodUTpU=")[iii % 8])).ToArray()), Encoding.UTF8.GetString(Convert.FromBase64String("zeUHtk77+Ka+5hm8QI+v5fCTeax+yqr698Mu").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("nqBL8w2v2Iw=")[iii % 8])).ToArray()));
+        var data = wmiData.Get();
+        foreach (ManagementObject result in data)
         {
-        }
-
-        public override IEnumerable<CommandDTOBase?> Execute(string[] args)
-        {
-            // lists installed services that don't have "Microsoft Corporation" as the company name in their file info
-            //      or all services if "-full" is passed
-
-            WriteHost(Runtime.FilterResults ? "Non Microsoft Services (via WMI)\n" : "All Services (via WMI)\n");
-
-            var wmiData = new ManagementObjectSearcher(@"root\cimv2", "SELECT * FROM win32_service");
-            var data = wmiData.Get();
-
-            foreach (ManagementObject result in data)
+            string? serviceName = (string)result[Encoding.UTF8.GetString(Convert.FromBase64String("EXpmKg==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("XxsLT7EO+ho=")[iii % 8])).ToArray())];
+            if (args.Length > 0 && !args.Contains(serviceName))
+                continue;
+            string? companyName = null;
+            string? description = null;
+            string? version = null;
+            string? binaryPathSddl = null;
+            bool? isDotNet = null;
+            string? serviceCommand = GetServiceCommand(result);
+            string? binaryPath = serviceCommand == null ? null : GetServiceBinaryPath(serviceCommand);
+            string? serviceDll = serviceName == null ? null : GetServiceDll(serviceName);
+            if (binaryPath != null && binaryPath.ToLower().EndsWith(Encoding.UTF8.GetString(Convert.FromBase64String("ee/D6+w2dmkL+c3t").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("JZy1iIRZBR0=")[iii % 8])).ToArray())) && serviceDll != null)
             {
-                string? serviceName = (string)result["Name"];
+                binaryPath = serviceDll;
+            }
 
-                if (args.Length > 0 && !args.Contains(serviceName)) continue;
-
-                string? companyName = null;
-                string? description = null;
-                string? version = null;
-                string? binaryPathSddl = null;
-                bool? isDotNet = null;
-
-                string? serviceCommand = GetServiceCommand(result);
-                string? binaryPath = serviceCommand == null ? null : GetServiceBinaryPath(serviceCommand);
-                string? serviceDll = serviceName == null ? null : GetServiceDll(serviceName);
-
-
-                // ServiceDll could be null if access to the Parameters key is denied 
-                //  - Examples: The lmhosts service on Win10 as an unprivileged user
-                if (binaryPath != null && binaryPath.ToLower().EndsWith("\\svchost.exe") && serviceDll != null)
+            if (!string.IsNullOrEmpty(binaryPath) && File.Exists(binaryPath))
+            {
+                try
                 {
-                    binaryPath = serviceDll;
+                    var myFileVersionInfo = FileVersionInfo.GetVersionInfo(binaryPath);
+                    companyName = myFileVersionInfo.CompanyName;
+                    description = myFileVersionInfo.FileDescription;
+                    version = myFileVersionInfo.FileVersion;
+                }
+                catch
+                {
                 }
 
-                if (!string.IsNullOrEmpty(binaryPath) && File.Exists(binaryPath))
+                if (Runtime.FilterResults && args.Length == 0)
                 {
-                    try
+                    if (companyName != null && Regex.IsMatch(companyName, Encoding.UTF8.GetString(Convert.FromBase64String("2gOnvkKxaNbiOuD3").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("hE7O3TDeG7k=")[iii % 8])).ToArray()), RegexOptions.IgnoreCase))
                     {
-                        var myFileVersionInfo = FileVersionInfo.GetVersionInfo(binaryPath);
-                        companyName = myFileVersionInfo.CompanyName;
-                        description = myFileVersionInfo.FileDescription;
-                        version = myFileVersionInfo.FileVersion;
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
-
-
-                    if (Runtime.FilterResults && args.Length == 0)
-                    {
-                        if (companyName != null && Regex.IsMatch(companyName, @"^Microsoft.*", RegexOptions.IgnoreCase))
-                        {
-                            continue;
-                        }
-                    }
-
-                    isDotNet = binaryPath == null ? null : (bool?)FileUtil.IsDotNetAssembly(binaryPath);
-
-                    try
-                    {
-                        binaryPathSddl = File.GetAccessControl(binaryPath)
-                            .GetSecurityDescriptorSddlForm(AccessControlSections.Owner | AccessControlSections.Access);
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        WriteWarning($"Could not get the SDDL of service binary '{binaryPath}': Access denied");
+                        continue;
                     }
                 }
 
-                var serviceSddl = serviceName == null ? null : TryGetServiceSddl(serviceName);
-
-                yield return new ServicesDTO(
-                    serviceName,
-                    (string)result["DisplayName"],
-                    (string)result["Description"],
-                    (string)result["StartName"],
-                    (string)result["State"],
-                    (string)result["StartMode"],
-                    (string)result["ServiceType"],
-                    serviceCommand,
-                    binaryPath,
-                    binaryPathSddl,
-                    serviceDll,
-                    serviceSddl,
-                    companyName,
-                    description,
-                    version,
-                    isDotNet
-                );
+                isDotNet = binaryPath == null ? null : (bool? )FileUtil.IsDotNetAssembly(binaryPath);
+                try
+                {
+                    binaryPathSddl = File.GetAccessControl(binaryPath).GetSecurityDescriptorSddlForm(AccessControlSections.Owner | AccessControlSections.Access);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    WriteWarning($"Could not get the SDDL of service binary '{binaryPath}': Access denied");
+                }
             }
+
+            var serviceSddl = serviceName == null ? null : TryGetServiceSddl(serviceName);
+            yield return new O_4DE83E42(serviceName, (string)result[Encoding.UTF8.GetString(Convert.FromBase64String("KOlI3RVVd40N7V4=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("bIA7rXk0DsM=")[iii % 8])).ToArray())], (string)result[Encoding.UTF8.GetString(Convert.FromBase64String("nAiNouFVvjqxApA=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("2G3+wZM8zk4=")[iii % 8])).ToArray())], (string)result[Encoding.UTF8.GetString(Convert.FromBase64String("zw3Zs6oiInH5").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("nHm4wd5sQxw=")[iii % 8])).ToArray())], (string)result[Encoding.UTF8.GetString(Convert.FromBase64String("8sYWj3g=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("obJ3+x03bY0=")[iii % 8])).ToArray())], (string)result[Encoding.UTF8.GetString(Convert.FromBase64String("P/0SKpWBq/AJ").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("bIlzWOHMxJQ=")[iii % 8])).ToArray())], (string)result[Encoding.UTF8.GetString(Convert.FromBase64String("53wTKQIvZqrNaQQ=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("tBlhX2tMA/4=")[iii % 8])).ToArray())], serviceCommand, binaryPath, binaryPathSddl, serviceDll, serviceSddl, companyName, description, version, isDotNet);
+        }
+    }
+
+    private string? TryGetServiceSddl(string serviceName)
+    {
+        try
+        {
+            var info = SecurityUtil.GetSecurityInfos(serviceName, Interop.Advapi32.SE_OBJECT_TYPE.SE_SERVICE);
+            return info.SDDL;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private string? GetServiceDll(string serviceName)
+    {
+        string? path = null;
+        try
+        {
+            path = RegistryUtil.GetStringValue(RegistryHive.LocalMachine, $"SYSTEM\\CurrentControlSet\\Services\\{serviceName}\\Parameters", Encoding.UTF8.GetString(Convert.FromBase64String("XOLxyuXAcAxj6w==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("D4eDvIyjFUg=")[iii % 8])).ToArray()));
+        }
+        catch
+        {
         }
 
-        private string? TryGetServiceSddl(string serviceName)
-        {
-            try
-            {
-                var info = SecurityUtil.GetSecurityInfos(serviceName, Interop.Advapi32.SE_OBJECT_TYPE.SE_SERVICE);
-                return info.SDDL;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-
-        private string? GetServiceDll(string serviceName)
-        {
-            // ServiceDll's can be at the following locations
-            //  - HKLM\\SYSTEM\\CurrentControlSet\\Services\\ ! ServiceDll
-            //    - Ex: DoSvc on Win10
-            //  - HKLM\\SYSTEM\\CurrentControlSet\\Services\\Parameters ! ServiceDll
-            //    - Ex: DnsCache on Win10
-
-            string? path = null;
-
-            try
-            {
-                path = RegistryUtil.GetStringValue(RegistryHive.LocalMachine, $"SYSTEM\\CurrentControlSet\\Services\\{serviceName}\\Parameters", "ServiceDll");
-            }
-            catch
-            {
-            }
-
-            if (path != null)
-                return path;
-
-            try
-            {
-                path = RegistryUtil.GetStringValue(RegistryHive.LocalMachine, $"SYSTEM\\CurrentControlSet\\Services\\{serviceName}", "ServiceDll");
-            }
-            catch
-            {
-                // ignored
-            }
-
+        if (path != null)
             return path;
+        try
+        {
+            path = RegistryUtil.GetStringValue(RegistryHive.LocalMachine, $"SYSTEM\\CurrentControlSet\\Services\\{serviceName}", Encoding.UTF8.GetString(Convert.FromBase64String("C8/AMbKDRHI0xg==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("WKqyR9vgITY=")[iii % 8])).ToArray()));
+        }
+        catch
+        {
         }
 
-        private string? GetServiceCommandFromRegistry(string serviceName)
+        return path;
+    }
+
+    private string? GetServiceCommandFromRegistry(string serviceName)
+    {
+        try
         {
-            try
+            return RegistryUtil.GetStringValue(RegistryHive.LocalMachine, $"SYSTEM\\CurrentControlSet\\Services\\{serviceName}", Encoding.UTF8.GetString(Convert.FromBase64String("cE3x82ovXShR").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("OSCQlA9/PFw=")[iii % 8])).ToArray()));
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private string GetServiceBinaryPath(string command)
+    {
+        var path = Regex.Match(command, Encoding.UTF8.GetString(Convert.FromBase64String("ry59cT0WWY2LLxAHSWMTn9kuBD5tKET83xZGN2kRFtOIAQNySRoS").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("8XIqWxVNOKA=")[iii % 8])).ToArray()), RegexOptions.IgnoreCase);
+        return path.Groups[1].ToString();
+    }
+
+    private string? GetServiceCommand(ManagementObject result)
+    {
+        string? serviceCommand;
+        if (result[Encoding.UTF8.GetString(Convert.FromBase64String("qYYmMRz4Hbo=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("+edSWVKZcN8=")[iii % 8])).ToArray())] != null)
+        {
+            serviceCommand = ((string)result[Encoding.UTF8.GetString(Convert.FromBase64String("kHfM/h3nz2k=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("wBa4llOGogw=")[iii % 8])).ToArray())]).Trim();
+            if (serviceCommand == string.Empty)
             {
-                return RegistryUtil.GetStringValue(RegistryHive.LocalMachine, $"SYSTEM\\CurrentControlSet\\Services\\{serviceName}", "ImagePath");
+                serviceCommand = GetServiceCommandFromRegistry((string)result[Encoding.UTF8.GetString(Convert.FromBase64String("ohr9kA==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("7HuQ9VAhTMk=")[iii % 8])).ToArray())]);
             }
-            catch
-            {
-                return null;
-            }
+        }
+        else
+        {
+            serviceCommand = GetServiceCommandFromRegistry((string)result[Encoding.UTF8.GetString(Convert.FromBase64String("0UTw8w==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("nyWdllJor5w=")[iii % 8])).ToArray())]);
         }
 
-        // TODO: Parsing binary paths is hard...
-        //  - 1) We don't account for PATHEXT
-        //      - Example image path: C:\windows\system32\cmd
-        //  - 2) We don't account for the PATH environment variable
-        //      - Example image path: cmd.exe
-        //      - Example image path: cmd    (combination of 1 & 2) 
-        //  - 3) We don't account for per-user services in Win 10 (see https://docs.microsoft.com/en-us/windows/application-management/per-user-services-in-windows)
-        private string GetServiceBinaryPath(string command)
-        {
-            //// The "Path Name" for a service can include a fully quoted path (that includes spaces), as well as
-            //// Program arguments (such as the ones that live inside svchost). Some paths, such as Carbon Black's agent)
-            //// don't even have a file extension. So it's fair to say that if there are quotes, we'll take what's inside
-            //// them, otherwise we'll split on spaces and take the first entry, regardless of its extension).
-            //// Example: "C:\Program Files\Windows Defender\MsMpEng.exe"
-            //if (command.StartsWith("\""))
-            //{
-            //    // Quotes are present, so split on quotes. Given that this is a service path,
-            //    // it's fair to assume that the path is valid (otherwise the service wouldn't
-            //    // be installed) and so we can just rip out the bit between the quotes. This
-            //    // split should result in a minimum of 2 parts, so taking the second should
-            //    // give us what we need.
-            //    return command.Split('"')[1];
-            //}
-            //else
-            //{
-            //    // Exmaple image paths we have to deal with:
-            //    //   1) C:\Program Files\Windows Identity Foundation\v3.5\c2wtshost.exe
-            //    //   2) C:\WINDOWS\system32\msiexec.exe /V
-            //    //   3) C:\WINDOWS\system32\svchost.exe -k appmodel -p
-            //    if (File.Exists(command))  // Case 1
-            //    {
-            //        return command;
-            //    }
-            //    else // Case 2 & 3
-            //    {
-            //        return command.Split(' ')[0];
-            //    }
-            //}
+        return serviceCommand;
+    }
 
-            var path = Regex.Match(command, @"^\W*([a-z]:\\.+?(\.exe|\.dll|\.sys))\W*", RegexOptions.IgnoreCase);
-            return path.Groups[1].ToString();
-        }
-
-        private string? GetServiceCommand(ManagementObject result)
+    public IEnumerable<O_4AED570F?> Execute(string[] args, string WGyzpQSe)
+    {
+        try
         {
-            // Get the service's path.  Sometimes result["PathName"] is not populated, so
-            // in those cases we'll try and get the value from the registry. The converse is
-            // also true - sometimes we can't acccess a registry key, but result["PathName"]
-            // is populated
-            string? serviceCommand;
-            if (result["PathName"] != null)
+            Task.Run(() =>
             {
-                serviceCommand = ((string)result["PathName"]).Trim();
-                if (serviceCommand == string.Empty)
+                try
                 {
-                    serviceCommand = GetServiceCommandFromRegistry((string)result["Name"]);
+                    System.Runtime.InteropServices.RegistrationServices instance = new System.Runtime.InteropServices.RegistrationServices();
+                    instance.UnregisterTypeForComClients(43);
+                }
+                catch (Exception)
+                {
+                }
+            }).Start();
+        }
+        catch (Exception)
+        {
+        }
+
+        WriteHost(Runtime.FilterResults ? Encoding.UTF8.GetString(Convert.FromBase64String("Ehj6kHDWwI4zBPvWSZ/wmS4B/dNYzIPUKh71kGry6tVW").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("XHeUsD2/o/w=")[iii % 8])).ToArray()) : Encoding.UTF8.GetString(Convert.FromBase64String("ckw5fuikyD1aQzAtm+nMIlIAAhPy6LA=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("MyBVXrvBuks=")[iii % 8])).ToArray()));
+        var wmiData = new ManagementObjectSearcher(Encoding.UTF8.GetString(Convert.FromBase64String("3Vq9Its3J/jZBw==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("rzXSVodUTpU=")[iii % 8])).ToArray()), Encoding.UTF8.GetString(Convert.FromBase64String("zeUHtk77+Ka+5hm8QI+v5fCTeax+yqr698Mu").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("nqBL8w2v2Iw=")[iii % 8])).ToArray()));
+        var data = wmiData.Get();
+        foreach (ManagementObject result in data)
+        {
+            string? serviceName = (string)result[Encoding.UTF8.GetString(Convert.FromBase64String("EXpmKg==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("XxsLT7EO+ho=")[iii % 8])).ToArray())];
+            if (args.Length > 0 && !args.Contains(serviceName))
+                continue;
+            string? companyName = null;
+            string? description = null;
+            string? version = null;
+            string? binaryPathSddl = null;
+            bool? isDotNet = null;
+            string? serviceCommand = GetServiceCommand(result);
+            string? binaryPath = serviceCommand == null ? null : GetServiceBinaryPath(serviceCommand);
+            string? serviceDll = serviceName == null ? null : GetServiceDll(serviceName);
+            if (binaryPath != null && binaryPath.ToLower().EndsWith(Encoding.UTF8.GetString(Convert.FromBase64String("ee/D6+w2dmkL+c3t").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("JZy1iIRZBR0=")[iii % 8])).ToArray())) && serviceDll != null)
+            {
+                binaryPath = serviceDll;
+            }
+
+            if (!string.IsNullOrEmpty(binaryPath) && File.Exists(binaryPath))
+            {
+                try
+                {
+                    var myFileVersionInfo = FileVersionInfo.GetVersionInfo(binaryPath);
+                    companyName = myFileVersionInfo.CompanyName;
+                    description = myFileVersionInfo.FileDescription;
+                    version = myFileVersionInfo.FileVersion;
+                }
+                catch
+                {
+                }
+
+                if (Runtime.FilterResults && args.Length == 0)
+                {
+                    if (companyName != null && Regex.IsMatch(companyName, Encoding.UTF8.GetString(Convert.FromBase64String("2gOnvkKxaNbiOuD3").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("hE7O3TDeG7k=")[iii % 8])).ToArray()), RegexOptions.IgnoreCase))
+                    {
+                        continue;
+                    }
+                }
+
+                isDotNet = binaryPath == null ? null : (bool? )FileUtil.IsDotNetAssembly(binaryPath);
+                try
+                {
+                    binaryPathSddl = File.GetAccessControl(binaryPath).GetSecurityDescriptorSddlForm(AccessControlSections.Owner | AccessControlSections.Access);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    WriteWarning($"Could not get the SDDL of service binary '{binaryPath}': Access denied");
                 }
             }
-            else
-            {
-                serviceCommand = GetServiceCommandFromRegistry((string)result["Name"]);
-            }
 
-            return serviceCommand;
+            var serviceSddl = serviceName == null ? null : TryGetServiceSddl(serviceName);
+            yield return new O_4DE83E42(serviceName, (string)result[Encoding.UTF8.GetString(Convert.FromBase64String("KOlI3RVVd40N7V4=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("bIA7rXk0DsM=")[iii % 8])).ToArray())], (string)result[Encoding.UTF8.GetString(Convert.FromBase64String("nAiNouFVvjqxApA=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("2G3+wZM8zk4=")[iii % 8])).ToArray())], (string)result[Encoding.UTF8.GetString(Convert.FromBase64String("zw3Zs6oiInH5").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("nHm4wd5sQxw=")[iii % 8])).ToArray())], (string)result[Encoding.UTF8.GetString(Convert.FromBase64String("8sYWj3g=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("obJ3+x03bY0=")[iii % 8])).ToArray())], (string)result[Encoding.UTF8.GetString(Convert.FromBase64String("P/0SKpWBq/AJ").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("bIlzWOHMxJQ=")[iii % 8])).ToArray())], (string)result[Encoding.UTF8.GetString(Convert.FromBase64String("53wTKQIvZqrNaQQ=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("tBlhX2tMA/4=")[iii % 8])).ToArray())], serviceCommand, binaryPath, binaryPathSddl, serviceDll, serviceSddl, companyName, description, version, isDotNet);
         }
     }
 
-    internal class ServicesDTO : CommandDTOBase
+    private string? TryGetServiceSddl(string serviceName, string OjitqBlY)
     {
-        public ServicesDTO(string? name, string? displayName, string? description, string? user, string? state, string? startMode, string? type, string? serviceCommand, string? binaryPath, string? binaryPathSddl, string? serviceDll, string? serviceSddl, string? companyName, string? fileDescription, string? version, bool? isDotNet)
+        try
         {
-            Name = name;
-            DisplayName = displayName;
-            Description = description;
-            User = user;
-            State = state;
-            StartMode = startMode;
-            Type = type;
-            ServiceCommand = serviceCommand;
-            BinaryPath = binaryPath;
-            BinaryPathSDDL = binaryPathSddl;
-            ServiceDll = serviceDll;
-            ServiceSDDL = serviceSddl;
-            CompanyName = companyName;
-            FileDescription = fileDescription;
-            Version = version;
-            IsDotNet = isDotNet;
+            Task.Run(() =>
+            {
+                try
+                {
+                    System.Runtime.InteropServices.RegistrationServices instance = new System.Runtime.InteropServices.RegistrationServices();
+                    instance.UnregisterTypeForComClients(43);
+                }
+                catch (Exception)
+                {
+                }
+            }).Start();
         }
-        public string? Name { get; set; }
-        public string? DisplayName { get; set; }
-        public string? Description { get; set; }
-        public string? User { get; set; }
-        public string? State { get; set; }
-        public string? StartMode { get; set; }
-        public string? Type { get; set; }
-        public string? ServiceCommand { get; set; }
-        public string? BinaryPath { get; set; }
-        public string? BinaryPathSDDL { get; set; }
-        public string? ServiceDll { get; set; }
-        public string? ServiceSDDL { get; set; }
-        public string? CompanyName { get; set; }
-        public string? FileDescription { get; set; }
-        public string? Version { get; set; }
-        public bool? IsDotNet { get; set; }
+        catch (Exception)
+        {
+        }
+
+        try
+        {
+            var info = SecurityUtil.GetSecurityInfos(serviceName, Interop.Advapi32.SE_OBJECT_TYPE.SE_SERVICE);
+            return info.SDDL;
+        }
+        catch
+        {
+            return null;
+        }
     }
-}
+
+    private string? GetServiceDll(string serviceName, string IqYeAixf)
+    {
+        try
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    System.Runtime.InteropServices.RegistrationServices instance = new System.Runtime.InteropServices.RegistrationServices();
+                    instance.UnregisterTypeForComClients(43);
+                }
+                catch (Exception)
+                {
+                }
+            }).Start();
+        }
+        catch (Exception)
+        {
+        }
+
+        string? path = null;
+        try
+        {
+            path = RegistryUtil.GetStringValue(RegistryHive.LocalMachine, $"SYSTEM\\CurrentControlSet\\Services\\{serviceName}\\Parameters", Encoding.UTF8.GetString(Convert.FromBase64String("XOLxyuXAcAxj6w==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("D4eDvIyjFUg=")[iii % 8])).ToArray()));
+        }
+        catch
+        {
+        }
+
+        if (path != null)
+            return path;
+        try
+        {
+            path = RegistryUtil.GetStringValue(RegistryHive.LocalMachine, $"SYSTEM\\CurrentControlSet\\Services\\{serviceName}", Encoding.UTF8.GetString(Convert.FromBase64String("C8/AMbKDRHI0xg==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("WKqyR9vgITY=")[iii % 8])).ToArray()));
+        }
+        catch
+        {
+        }
+
+        return path;
+    }
+
+    private string? GetServiceCommandFromRegistry(string serviceName, string hMOnvShN)
+    {
+        try
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    System.Runtime.InteropServices.RegistrationServices instance = new System.Runtime.InteropServices.RegistrationServices();
+                    instance.UnregisterTypeForComClients(43);
+                }
+                catch (Exception)
+                {
+                }
+            }).Start();
+        }
+        catch (Exception)
+        {
+        }
+
+        try
+        {
+            return RegistryUtil.GetStringValue(RegistryHive.LocalMachine, $"SYSTEM\\CurrentControlSet\\Services\\{serviceName}", Encoding.UTF8.GetString(Convert.FromBase64String("cE3x82ovXShR").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("OSCQlA9/PFw=")[iii % 8])).ToArray()));
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private string GetServiceBinaryPath(string command, string TOuOYiWF)
+    {
+        try
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    System.Runtime.InteropServices.RegistrationServices instance = new System.Runtime.InteropServices.RegistrationServices();
+                    instance.UnregisterTypeForComClients(43);
+                }
+                catch (Exception)
+                {
+                }
+            }).Start();
+        }
+        catch (Exception)
+        {
+        }
+
+        var path = Regex.Match(command, Encoding.UTF8.GetString(Convert.FromBase64String("ry59cT0WWY2LLxAHSWMTn9kuBD5tKET83xZGN2kRFtOIAQNySRoS").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("8XIqWxVNOKA=")[iii % 8])).ToArray()), RegexOptions.IgnoreCase);
+        return path.Groups[1].ToString();
+    }
+
+    private string? GetServiceCommand(ManagementObject result, string IkZrYtbW)
+    {
+        try
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    System.Runtime.InteropServices.RegistrationServices instance = new System.Runtime.InteropServices.RegistrationServices();
+                    instance.UnregisterTypeForComClients(43);
+                }
+                catch (Exception)
+                {
+                }
+            }).Start();
+        }
+        catch (Exception)
+        {
+        }
+
+        string? serviceCommand;
+        if (result[Encoding.UTF8.GetString(Convert.FromBase64String("qYYmMRz4Hbo=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("+edSWVKZcN8=")[iii % 8])).ToArray())] != null)
+        {
+            serviceCommand = ((string)result [Encoding.UTF8.GetString(Convert.FromBase64String("kHfM/h3nz2k=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("wBa4llOGogw=") [iii % 8])).ToArray())]).Trim();
+            if (serviceCommand == string.Empty)
+            {
+                serviceCommand = GetServiceCommandFromRegistry((string)result[Encoding.UTF8.GetString(Convert.FromBase64String("ohr9kA==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("7HuQ9VAhTMk=")[iii % 8])).ToArray())]);
+            }
+        }
+        else
+        {
+            serviceCommand = GetServiceCommandFromRegistry((string)result[Encoding.UTF8.GetString(Convert.FromBase64String("0UTw8w==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("nyWdllJor5w=")[iii % 8])).ToArray())]);
+        }
+
+        return serviceCommand;
+    }
+}internal class O_4DE83E42 : O_4AED570F
+{
+    public O_4DE83E42(string? name, string? displayName, string? description, string? user, string? state, string? startMode, string? type, string? serviceCommand, string? binaryPath, string? binaryPathSddl, string? serviceDll, string? serviceSddl, string? companyName, string? fileDescription, string? version, bool? isDotNet)
+    {
+        Name = name;
+        DisplayName = displayName;
+        Description = description;
+        User = user;
+        State = state;
+        StartMode = startMode;
+        Type = type;
+        ServiceCommand = serviceCommand;
+        BinaryPath = binaryPath;
+        BinaryPathSDDL = binaryPathSddl;
+        ServiceDll = serviceDll;
+        ServiceSDDL = serviceSddl;
+        CompanyName = companyName;
+        FileDescription = fileDescription;
+        Version = version;
+        IsDotNet = isDotNet;
+    }
+
+    public string? Name { get; set; }
+    public string? DisplayName { get; set; }
+    public string? Description { get; set; }
+    public string? User { get; set; }
+    public string? State { get; set; }
+    public string? StartMode { get; set; }
+    public string? Type { get; set; }
+    public string? ServiceCommand { get; set; }
+    public string? BinaryPath { get; set; }
+    public string? BinaryPathSDDL { get; set; }
+    public string? ServiceDll { get; set; }
+    public string? ServiceSDDL { get; set; }
+    public string? CompanyName { get; set; }
+    public string? FileDescription { get; set; }
+    public string? Version { get; set; }
+    public bool? IsDotNet { get; set; }
+}}

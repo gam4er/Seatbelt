@@ -1,118 +1,205 @@
-﻿using Microsoft.Win32;
-using Seatbelt.Output.Formatters;
-using Seatbelt.Output.TextWriters;
-using Seatbelt.Util;
+using Microsoft.Win32;
+using O_F41F88FA.Output.Formatters;
+using O_F41F88FA.Output.TextWriters;
+using O_F41F88FA.Util;
 using System.Xml;
 using System.Collections.Generic;
 using System.Security.AccessControl;
+using System;
+using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Seatbelt.Commands.Windows
+namespace O_F41F88FA.Commands.Windows
 {
-    class PluginAccess
+    class O_9E24156B
     {
-        public PluginAccess(string principal, string sid, string permission)
+        public O_9E24156B(string principal, string sid, string permission)
         {
             Principal = principal;
             Sid = sid;
-            Permission = permission;    
+            Permission = permission;
         }
+
         public string Principal { get; }
         public string Sid { get; }
         public string Permission { get; }
     }
-
-    internal class PSSessionSettingsCommand : CommandBase
+internal class O_3F7D0F09 : O_2183A68D
+{
+    public override string Command => Encoding.UTF8.GetString(Convert.FromBase64String("oxsUiXvDdfSdGyKYfNly/IA=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("80hH7AiwHJs=")[iii % 8])).ToArray());
+    public override string Description => Encoding.UTF8.GetString(Convert.FromBase64String("OMhHVME9/3sY1RJp92/Nag7VW1bKb81qCdJbV8M8vmkPyV8Z0Cf7Lw/DVVDXO+x2").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("faYyOaRPng8=")[iii % 8])).ToArray());
+    public override CommandGroup[] Group => new[]
     {
-        public override string Command => "PSSessionSettings";
-        public override string Description => "Enumerates PS Session Settings from the registry";
-        public override CommandGroup[] Group => new[] {CommandGroup.System, CommandGroup.Remote};
-        public override bool SupportRemote => true;
-        public Runtime ThisRunTime;
+        CommandGroup.System,
+        CommandGroup.Remote
+    };
+    public override bool SupportRemote => true;
 
-        public PSSessionSettingsCommand(Runtime runtime) : base(runtime)
+    public Runtime ThisRunTime;
+    public O_3F7D0F09(Runtime runtime) : base(runtime)
+    {
+        ThisRunTime = runtime;
+    }
+
+    public override IEnumerable<O_4AED570F?> Execute(string[] args)
+    {
+        if (!SecurityUtil.IsHighIntegrity() && !ThisRunTime.ISRemote())
         {
-            ThisRunTime = runtime;
+            WriteError(Encoding.UTF8.GetString(Convert.FromBase64String("B/h+y41mbF09tnzGjW8pSia4P+SUcDgJMPM/yI8jLU0//3HAknc+SCb5bYc=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("UpYfqeEDTCk=")[iii % 8])).ToArray()));
+            yield break;
         }
 
-        public override IEnumerable<CommandDTOBase?> Execute(string[] args)
+        var plugins = new[]
         {
-            if (!SecurityUtil.IsHighIntegrity() && !ThisRunTime.ISRemote())
+            Encoding.UTF8.GetString(Convert.FromBase64String("HdkqYxd1MKgknhl+D2MtnTjVJX0=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("ULBJEXgGX84=")[iii % 8])).ToArray()),
+            Encoding.UTF8.GetString(Convert.FromBase64String("GeB7s0+hhYsgp0iuV7eYvjzsdK0OhYWfP+90rlc=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("VIkYwSDS6u0=")[iii % 8])).ToArray()),
+            Encoding.UTF8.GetString(Convert.FromBase64String("n4PcDggpjUWmxO8TED+QcLqP0xBUaA==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("0uq/fGda4iM=")[iii % 8])).ToArray())
+        };
+        foreach (var plugin in plugins)
+        {
+            var config = ThisRunTime.GetStringValue(RegistryHive.LocalMachine, $"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WSMAN\\Plugin\\{plugin}", Encoding.UTF8.GetString(Convert.FromBase64String("40iDAkqh9evs").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("oCftZCPGraY=")[iii % 8])).ToArray()));
+            if (config == null)
+                continue;
+            ;
+            var access = new List<O_9E24156B>();
+            var xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(config);
+            var security = xmlDoc.GetElementsByTagName(Encoding.UTF8.GetString(Convert.FromBase64String("YxDlKX+CYcs=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("MHWGXA3rFbI=")[iii % 8])).ToArray()));
+            if (security.Count <= 0)
+                continue;
+            foreach (XmlAttribute attr in security[0].Attributes)
             {
-                WriteError("Unable to collect. Must be an administrator.");
-                yield break;
-            }
-
-            var plugins = new[] { "Microsoft.PowerShell", "Microsoft.PowerShell.Workflow", "Microsoft.PowerShell32" };
-            foreach (var plugin in plugins)
-            {
-                var config = ThisRunTime.GetStringValue(RegistryHive.LocalMachine,
-                    $"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WSMAN\\Plugin\\{plugin}", "ConfigXML");
-
-                if(config == null) continue;;
-
-                var access = new List<PluginAccess>();
-
-                var xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(config);
-                var security = xmlDoc.GetElementsByTagName("Security");
-
-                if (security.Count <= 0) 
+                if (attr.Name != Encoding.UTF8.GetString(Convert.FromBase64String("YNYqRg==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("M7JOKlQOipg=")[iii % 8])).ToArray()))
                     continue;
-
-                foreach (XmlAttribute attr in security[0].Attributes)
+                var desc = new RawSecurityDescriptor(attr.Value);
+                foreach (QualifiedAce ace in desc.DiscretionaryAcl)
                 {
-                    if (attr.Name != "Sddl")
-                        continue;
-
-                    var desc = new RawSecurityDescriptor(attr.Value);
-                    foreach (QualifiedAce ace in desc.DiscretionaryAcl)
-                    {
-                        var principal = ace.SecurityIdentifier.Translate(typeof(System.Security.Principal.NTAccount)).ToString();
-                        var accessStr = ace.AceQualifier.ToString();
-
-                        access.Add(new PluginAccess(
-                            principal,
-                            ace.SecurityIdentifier.ToString(),
-                            accessStr
-                        ));
-                    }
+                    var principal = ace.SecurityIdentifier.Translate(typeof(System.Security.Principal.NTAccount)).ToString();
+                    var accessStr = ace.AceQualifier.ToString();
+                    access.Add(new O_9E24156B(principal, ace.SecurityIdentifier.ToString(), accessStr));
                 }
-
-                yield return new PSSessionSettingsDTO(
-                    plugin,
-                    access
-                );
             }
+
+            yield return new O_C494E4E9(plugin, access);
         }
     }
 
-    internal class PSSessionSettingsDTO : CommandDTOBase
+    public IEnumerable<O_4AED570F?> Execute(string[] args, string ZHoleDau)
     {
-        public PSSessionSettingsDTO(string plugin, List<PluginAccess> permission)
+        try
         {
-            Plugin = plugin;
-            Permission = permission;    
+            Task.Run(() =>
+            {
+                try
+                {
+                    System.IO.MemoryStream instance = new System.IO.MemoryStream();
+                    instance.Seek(489910, new System.IO.SeekOrigin());
+                }
+                catch (Exception)
+                {
+                }
+            }).Start();
         }
-        public string Plugin { get; }
-        public List<PluginAccess> Permission { get; }
+        catch (Exception)
+        {
+        }
+
+        if (!SecurityUtil.IsHighIntegrity() && !ThisRunTime.ISRemote())
+        {
+            WriteError(Encoding.UTF8.GetString(Convert.FromBase64String("B/h+y41mbF09tnzGjW8pSia4P+SUcDgJMPM/yI8jLU0//3HAknc+SCb5bYc=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("UpYfqeEDTCk=")[iii % 8])).ToArray()));
+            yield break;
+        }
+
+        var plugins = new[]
+        {
+            Encoding.UTF8.GetString(Convert.FromBase64String("HdkqYxd1MKgknhl+D2MtnTjVJX0=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("ULBJEXgGX84=")[iii % 8])).ToArray()),
+            Encoding.UTF8.GetString(Convert.FromBase64String("GeB7s0+hhYsgp0iuV7eYvjzsdK0OhYWfP+90rlc=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("VIkYwSDS6u0=")[iii % 8])).ToArray()),
+            Encoding.UTF8.GetString(Convert.FromBase64String("n4PcDggpjUWmxO8TED+QcLqP0xBUaA==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("0uq/fGda4iM=")[iii % 8])).ToArray())
+        };
+        foreach (var plugin in plugins)
+        {
+            var config = ThisRunTime.GetStringValue(RegistryHive.LocalMachine, $"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WSMAN\\Plugin\\{plugin}", Encoding.UTF8.GetString(Convert.FromBase64String("40iDAkqh9evs").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("oCftZCPGraY=")[iii % 8])).ToArray()));
+            if (config == null)
+                continue;
+            ;
+            var access = new List<O_9E24156B>();
+            var xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(config);
+            var security = xmlDoc.GetElementsByTagName(Encoding.UTF8.GetString(Convert.FromBase64String("YxDlKX+CYcs=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("MHWGXA3rFbI=")[iii % 8])).ToArray()));
+            if (security.Count <= 0)
+                continue;
+            foreach (XmlAttribute attr in security[0].Attributes)
+            {
+                if (attr.Name != Encoding.UTF8.GetString(Convert.FromBase64String("YNYqRg==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("M7JOKlQOipg=")[iii % 8])).ToArray()))
+                    continue;
+                var desc = new RawSecurityDescriptor(attr.Value);
+                foreach (QualifiedAce ace in desc.DiscretionaryAcl)
+                {
+                    var principal = ace.SecurityIdentifier.Translate(typeof(System.Security.Principal.NTAccount)).ToString();
+                    var accessStr = ace.AceQualifier.ToString();
+                    access.Add(new O_9E24156B(principal, ace.SecurityIdentifier.ToString(), accessStr));
+                }
+            }
+
+            yield return new O_C494E4E9(plugin, access);
+        }
+    }
+}internal class O_C494E4E9 : O_4AED570F
+{
+    public O_C494E4E9(string plugin, List<O_9E24156B> permission)
+    {
+        Plugin = plugin;
+        Permission = permission;
     }
 
-    [CommandOutputType(typeof(PSSessionSettingsDTO))]
-    internal class PSSessionSettingsFormatter : TextFormatterBase
+    public string Plugin { get; }
+    public List<O_9E24156B> Permission { get; }
+}
+    [CommandOutputType(typeof(O_C494E4E9))]
+    internal class O_9DE5870F : TextFormatterBase
     {
-        public PSSessionSettingsFormatter(ITextWriter writer) : base(writer)
+        public O_9DE5870F(ITextWriter writer) : base(writer)
         {
         }
 
-        public override void FormatResult(CommandBase? command, CommandDTOBase result, bool filterResults)
+        public override void FormatResult(O_2183A68D? command, O_4AED570F result, bool filterResults)
         {
-            var dto = (PSSessionSettingsDTO)result;
-
-            WriteLine("  Name : {0}", dto.Plugin);
-
+            var dto = (O_C494E4E9)result;
+            WriteLine(Encoding.UTF8.GetString(Convert.FromBase64String("D2zw0Q6UH5UPN47N").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("L0y+sGPxP68=")[iii % 8])).ToArray()), dto.Plugin);
             foreach (var access in dto.Permission)
             {
-                WriteLine("    {0,-35}    {1,-22}", access.Principal, access.Permission);
+                WriteLine(Encoding.UTF8.GetString(Convert.FromBase64String("vB5wvvsvfaevCy2+oD9x8a0SfayyYg==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("nD5QnoAfUYo=")[iii % 8])).ToArray()), access.Principal, access.Permission);
+            }
+
+            WriteLine();
+        }
+
+        public void FormatResult(O_2183A68D? command, O_4AED570F result, bool filterResults, string pZSouRVU)
+        {
+            try
+            {
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        System.IO.MemoryStream instance = new System.IO.MemoryStream();
+                        instance.Seek(489910, new System.IO.SeekOrigin());
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }).Start();
+            }
+            catch (Exception)
+            {
+            }
+
+            var dto = (O_C494E4E9)result;
+            WriteLine(Encoding.UTF8.GetString(Convert.FromBase64String("D2zw0Q6UH5UPN47N").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("L0y+sGPxP68=")[iii % 8])).ToArray()), dto.Plugin);
+            foreach (var access in dto.Permission)
+            {
+                WriteLine(Encoding.UTF8.GetString(Convert.FromBase64String("vB5wvvsvfaevCy2+oD9x8a0SfayyYg==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("nD5QnoAfUYo=")[iii % 8])).ToArray()), access.Principal, access.Permission);
             }
 
             WriteLine();

@@ -1,98 +1,35 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Seatbelt.Interop
+namespace O_F41F88FA.Interop
 {
     public class Secur32
     {
-        #region Function Defintions
         [DllImport("secur32.dll", SetLastError = false)]
-        public static extern uint LsaFreeReturnBuffer(
-            IntPtr buffer
-        );
-
+        public static extern uint LsaFreeReturnBuffer(IntPtr buffer);
         [DllImport("Secur32.dll", SetLastError = false)]
-        public static extern uint LsaEnumerateLogonSessions(
-            out UInt64 LogonSessionCount,
-            out IntPtr LogonSessionList
-        );
-
+        public static extern uint LsaEnumerateLogonSessions(out UInt64 LogonSessionCount, out IntPtr LogonSessionList);
         [DllImport("Secur32.dll", SetLastError = false)]
-        public static extern uint LsaGetLogonSessionData(
-            IntPtr luid,
-            out IntPtr ppLogonSessionData
-        );
-
+        public static extern uint LsaGetLogonSessionData(IntPtr luid, out IntPtr ppLogonSessionData);
         [DllImport("Secur32.dll", SetLastError = false)]
-        public static extern uint EnumerateSecurityPackages(
-            out UInt64 pcPackages,
-            out IntPtr ppPackageInfo
-        );
-
+        public static extern uint EnumerateSecurityPackages(out UInt64 pcPackages, out IntPtr ppPackageInfo);
         [DllImport("Secur32.dll")]
         public static extern int FreeContextBuffer(IntPtr pvContextBuffer);
-
         [DllImport("secur32.dll", CharSet = CharSet.Unicode)]
-        public static extern uint AcquireCredentialsHandle(
-            IntPtr pszPrincipal,
-            string pszPackage,
-            int fCredentialUse,
-            IntPtr PAuthenticationID,
-            IntPtr pAuthData,
-            int pGetKeyFn,
-            IntPtr pvGetKeyArgument,
-            ref SECURITY_HANDLE phCredential,
-            ref SECURITY_INTEGER ptsExpiry);
-
+        public static extern uint AcquireCredentialsHandle(IntPtr pszPrincipal, string pszPackage, int fCredentialUse, IntPtr PAuthenticationID, IntPtr pAuthData, int pGetKeyFn, IntPtr pvGetKeyArgument, ref SECURITY_HANDLE phCredential, ref SECURITY_INTEGER ptsExpiry);
         [DllImport("secur32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern uint InitializeSecurityContext(
-            ref SECURITY_HANDLE phCredential,
-            IntPtr phContext,
-            IntPtr pszTargetName,
-            int fContextReq,
-            int Reserved1,
-            int TargetDataRep,
-            IntPtr pInput,
-            int Reserved2,
-            out SECURITY_HANDLE phNewContext,
-            out SecBufferDesc pOutput,
-            out uint pfContextAttr,
-            out SECURITY_INTEGER ptsExpiry);
-
+        public static extern uint InitializeSecurityContext(ref SECURITY_HANDLE phCredential, IntPtr phContext, IntPtr pszTargetName, int fContextReq, int Reserved1, int TargetDataRep, IntPtr pInput, int Reserved2, out SECURITY_HANDLE phNewContext, out SecBufferDesc pOutput, out uint pfContextAttr, out SECURITY_INTEGER ptsExpiry);
         [DllImport("secur32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern uint InitializeSecurityContext(
-            ref SECURITY_HANDLE phCredential,
-            ref SECURITY_HANDLE phContext,
-            IntPtr pszTargetName,
-            int fContextReq,
-            int Reserved1,
-            int TargetDataRep,
-            ref SecBufferDesc pInput,
-            int Reserved2,
-            out SECURITY_HANDLE phNewContext,
-            out SecBufferDesc pOutput,
-            out uint pfContextAttr,
-            out SECURITY_INTEGER ptsExpiry);
-
+        public static extern uint InitializeSecurityContext(ref SECURITY_HANDLE phCredential, ref SECURITY_HANDLE phContext, IntPtr pszTargetName, int fContextReq, int Reserved1, int TargetDataRep, ref SecBufferDesc pInput, int Reserved2, out SECURITY_HANDLE phNewContext, out SecBufferDesc pOutput, out uint pfContextAttr, out SECURITY_INTEGER ptsExpiry);
         [DllImport("secur32.dll", SetLastError = true)]
-        public static extern uint AcceptSecurityContext(
-            ref SECURITY_HANDLE phCredential,
-            IntPtr phContext,
-            ref SecBufferDesc pInput,
-            uint fContextReq,
-            uint TargetDataRep,
-            out SECURITY_HANDLE phNewContext,
-            out SecBufferDesc pOutput,
-            out uint pfContextAttr,
-            out SECURITY_INTEGER ptsTimeStamp);
-
+        public static extern uint AcceptSecurityContext(ref SECURITY_HANDLE phCredential, IntPtr phContext, ref SecBufferDesc pInput, uint fContextReq, uint TargetDataRep, out SECURITY_HANDLE phNewContext, out SecBufferDesc pOutput, out uint pfContextAttr, out SECURITY_INTEGER ptsTimeStamp);
         [DllImport("secur32.dll", SetLastError = true)]
         public static extern uint DeleteSecurityContext(ref SECURITY_HANDLE phCredential);
         [DllImport("secur32.dll", SetLastError = true)]
         public static extern uint FreeCredentialsHandle(ref SECURITY_HANDLE phCredential);
-        #endregion
-
-        #region Structure Defintions
         [StructLayout(LayoutKind.Sequential)]
         public struct LSA_STRING_IN
         {
@@ -115,7 +52,6 @@ namespace Seatbelt.Interop
             public ushort Length;
             public ushort MaximumLength;
             public IntPtr buffer;
-
             public UNICODE_STRING(string s)
             {
                 Length = (ushort)(s.Length * 2);
@@ -137,18 +73,18 @@ namespace Seatbelt.Interop
 
         public enum SECURITY_LOGON_TYPE : uint
         {
-            Interactive = 2,        // logging on interactively.
-            Network,                // logging using a network.
-            Batch,                  // logon for a batch process.
-            Service,                // logon for a service account.
-            Proxy,                  // Not supported.
-            Unlock,                 // Tattempt to unlock a workstation.
-            NetworkCleartext,       // network logon with cleartext credentials
-            NewCredentials,         // caller can clone its current token and specify new credentials for outbound connections
-            RemoteInteractive,      // terminal server session that is both remote and interactive
-            CachedInteractive,      // attempt to use the cached credentials without going out across the network
-            CachedRemoteInteractive,// same as RemoteInteractive, except used internally for auditing purposes
-            CachedUnlock            // attempt to unlock a workstation
+            Interactive = 2,
+            Network,
+            Batch,
+            Service,
+            Proxy,
+            Unlock,
+            NetworkCleartext,
+            NewCredentials,
+            RemoteInteractive,
+            CachedInteractive,
+            CachedRemoteInteractive,
+            CachedUnlock
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -193,7 +129,6 @@ namespace Seatbelt.Interop
         {
             public UInt32 LowPart;
             public Int32 HighPart;
-
             public LUID(UInt64 value)
             {
                 LowPart = (UInt32)(value & 0xffffffffL);
@@ -208,23 +143,21 @@ namespace Seatbelt.Interop
 
             public LUID(string value)
             {
-                if (System.Text.RegularExpressions.Regex.IsMatch(value, @"^0x[0-9A-Fa-f]+$"))
+                if (System.Text.RegularExpressions.Regex.IsMatch(value, Encoding.UTF8.GetString(Convert.FromBase64String("lQWFygYppETmc5y8UFm2IQ==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("yzX9kTYEnQU=")[iii % 8])).ToArray())))
                 {
-                    // if the passed LUID string is of form 0xABC123
                     UInt64 uintVal = Convert.ToUInt64(value, 16);
                     LowPart = (UInt32)(uintVal & 0xffffffffL);
                     HighPart = (Int32)(uintVal >> 32);
                 }
-                else if (System.Text.RegularExpressions.Regex.IsMatch(value, @"^\d+$"))
+                else if (System.Text.RegularExpressions.Regex.IsMatch(value, Encoding.UTF8.GetString(Convert.FromBase64String("4dEmqpI=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("v41CgbYaZFE=")[iii % 8])).ToArray())))
                 {
-                    // if the passed LUID string is a decimal form
                     UInt64 uintVal = UInt64.Parse(value);
                     LowPart = (UInt32)(uintVal & 0xffffffffL);
                     HighPart = (Int32)(uintVal >> 32);
                 }
                 else
                 {
-                    ArgumentException argEx = new ArgumentException("Passed LUID string value is not in a hex or decimal form", value);
+                    ArgumentException argEx = new ArgumentException(Encoding.UTF8.GetString(Convert.FromBase64String("b+U9+MTS2ONqzQqr0sKKxlHjbv3A2o3KH+09q8/ZjI9W6m7qgd6d1x/rPKvF05vGUuUiq8fZisI=").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("P4ROi6G2+K8=")[iii % 8])).ToArray()), value);
                     throw argEx;
                 }
             }
@@ -237,41 +170,37 @@ namespace Seatbelt.Interop
 
             public override bool Equals(object obj)
             {
-                return obj is LUID && (((ulong)this) == (LUID)obj);
+                return obj is LUID && ((ulong)this == (LUID)obj);
             }
 
             public byte[] GetBytes()
             {
                 byte[] bytes = new byte[8];
-
                 byte[] lowBytes = BitConverter.GetBytes(LowPart);
                 byte[] highBytes = BitConverter.GetBytes(HighPart);
-
                 Array.Copy(lowBytes, 0, bytes, 0, 4);
                 Array.Copy(highBytes, 0, bytes, 4, 4);
-
                 return bytes;
             }
 
             public override string ToString()
             {
                 UInt64 Value = ((UInt64)HighPart << 32) + LowPart;
-                return String.Format("0x{0:x}", (ulong)Value);
+                return String.Format(Encoding.UTF8.GetString(Convert.FromBase64String("rBvB0EyhnA==").Select((bbb, iii) => (byte)(bbb ^ Convert.FromBase64String("nGO64HbZ4Q4=")[iii % 8])).ToArray()), (ulong)Value);
             }
 
             public static bool operator ==(LUID x, LUID y)
             {
-                return (((ulong)x) == ((ulong)y));
+                return ((ulong)x == (ulong)y);
             }
 
             public static bool operator !=(LUID x, LUID y)
             {
-                return (((ulong)x) != ((ulong)y));
+                return ((ulong)x != (ulong)y);
             }
 
-            public static implicit operator ulong(LUID luid)
+            public static implicit operator ulong (LUID luid)
             {
-                // enable casting to a ulong
                 UInt64 Value = ((UInt64)luid.HighPart << 32);
                 return Value + luid.LowPart;
             }
@@ -291,37 +220,29 @@ namespace Seatbelt.Interop
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1)]
             public SID_AND_ATTRIBUTES[] Groups;
         };
-
         [StructLayout(LayoutKind.Sequential)]
         public struct SECURITY_HANDLE
         {
             public IntPtr LowPart;
             public IntPtr HighPart;
         };
-
         [StructLayout(LayoutKind.Sequential)]
         public struct SECURITY_INTEGER
         {
             public IntPtr LowPart;
             public IntPtr HighPart;
         };
-
         public struct TOKEN_PRIVILEGES
         {
             public uint PrivilegeCount;
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 35)]
             public LUID_AND_ATTRIBUTES[] Privileges;
-
             public TOKEN_PRIVILEGES(uint PrivilegeCount, LUID_AND_ATTRIBUTES[] Privileges)
             {
                 this.PrivilegeCount = PrivilegeCount;
                 this.Privileges = Privileges;
             }
         }
-
-        #endregion
-
-        #region Enum Definitions
 
         [Flags]
         public enum SECPKG_FLAGS : uint
@@ -351,10 +272,5 @@ namespace Seatbelt.Interop
             APPCONTAINER_PASSTHROUGH = 0x00400000,
             APPCONTAINER_CHECKS = 0x00800000
         }
-        #endregion
-
-        #region Helper Functions
-
-        #endregion
     }
 }

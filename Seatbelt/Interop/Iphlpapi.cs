@@ -1,36 +1,23 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Seatbelt.Interop
+namespace O_F41F88FA.Interop
 {
     public class Iphlpapi
     {
         [DllImport("iphlpapi.dll", SetLastError = true)]
-        public static extern uint GetExtendedTcpTable(
-            IntPtr pTcpTable,
-            ref uint dwOutBufLen,
-            bool sort,
-            int ipVersion,
-            TCP_TABLE_CLASS tblClass,
-            int reserved);
-
+        public static extern uint GetExtendedTcpTable(IntPtr pTcpTable, ref uint dwOutBufLen, bool sort, int ipVersion, TCP_TABLE_CLASS tblClass, int reserved);
         [DllImport("iphlpapi.dll", SetLastError = true)]
-        public static extern uint GetExtendedUdpTable(
-            IntPtr pUdpTable,
-            ref uint dwOutBufLen,
-            bool sort,
-            int ipVersion,
-            UDP_TABLE_CLASS tblClass,
-            int reserved);
-
+        public static extern uint GetExtendedUdpTable(IntPtr pUdpTable, ref uint dwOutBufLen, bool sort, int ipVersion, UDP_TABLE_CLASS tblClass, int reserved);
         [DllImport("IpHlpApi.dll")]
         [return: MarshalAs(UnmanagedType.U4)]
-        internal static extern int GetIpNetTable(IntPtr pIpNetTable, [MarshalAs(UnmanagedType.U4)]ref int pdwSize, bool bOrder);
-
+        internal static extern int GetIpNetTable(IntPtr pIpNetTable, [MarshalAs(UnmanagedType.U4)] ref int pdwSize, bool bOrder);
         [DllImport("IpHlpApi.dll", SetLastError = true, CharSet = CharSet.Auto)]
         internal static extern int FreeMibTable(IntPtr plpNetTable);
-
         public enum TCP_TABLE_CLASS : int
         {
             TCP_TABLE_BASIC_LISTENER,
@@ -99,18 +86,12 @@ namespace Seatbelt.Interop
             public readonly ulong OwningModuleInfo13;
             public readonly ulong OwningModuleInfo14;
             public readonly ulong OwningModuleInfo15;
-
-
             public ushort LocalPort => BitConverter.ToUInt16(new byte[2] { LocalPort2, LocalPort1 }, 0);
-
             public IPAddress LocalAddress => new IPAddress(LocalAddr);
-
             public IPAddress RemoteAddress => new IPAddress(RemoteAddr);
-
             public ushort RemotePort => BitConverter.ToUInt16(new byte[2] { RemotePort2, RemotePort1 }, 0);
         }
 
-        #region UDP Interop
         public enum UDP_TABLE_CLASS : int
         {
             UDP_TABLE_BASIC,
@@ -136,7 +117,6 @@ namespace Seatbelt.Interop
             public readonly uint OwningPid;
             public readonly ulong CreateTimestamp;
             public readonly uint SpecificPortBind_Flags;
-            // public readonly UInt32 Flags;
             public readonly ulong OwningModuleInfo0;
             public readonly ulong OwningModuleInfo1;
             public readonly ulong OwningModuleInfo2;
@@ -153,9 +133,7 @@ namespace Seatbelt.Interop
             public readonly ulong OwningModuleInfo13;
             public readonly ulong OwningModuleInfo14;
             public readonly ulong OwningModuleInfo15;
-
             public ushort LocalPort => BitConverter.ToUInt16(new byte[2] { LocalPort2, LocalPort1 }, 0);
-
             public IPAddress LocalAddress => new IPAddress(LocalAddr);
         }
 
@@ -195,8 +173,5 @@ namespace Seatbelt.Interop
             [MarshalAs(UnmanagedType.U4)]
             public int dwType;
         }
-
-        #endregion
-
     }
 }
